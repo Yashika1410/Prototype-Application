@@ -16,14 +16,16 @@ import java.util.Map;
 import java.util.function.Function;
 
 import static com.crafters.DataService.constants.JwtConstants.SECRET_KEY;
-
+/**
+ * Implementation of the JwtUtils interface, providing functionality for JWT token operations.
+ */
 @Component
 public class JwtUtilsImpl implements JwtUtils {
     /**
-     * method to extract username form jwt token
+     * Extracts the username from a JWT token.
      *
-     * @param token
-     * @return
+     * @param token The JWT token from which to extract the username.
+     * @return The username extracted from the token.
      */
     @Override
     public String extractUserName(String token) {
@@ -31,10 +33,10 @@ public class JwtUtilsImpl implements JwtUtils {
     }
 
     /**
-     * generate token using userDetails
+     * Generates a JWT token using user details.
      *
-     * @param userDetails
-     * @return
+     * @param userDetails The UserDetails object for which to generate the token.
+     * @return The generated JWT token.
      */
     @Override
     public String generateToken(UserDetails userDetails) {
@@ -42,11 +44,11 @@ public class JwtUtilsImpl implements JwtUtils {
     }
 
     /**
-     * check if token is valid or not
+     * Checks if a JWT token is valid.
      *
-     * @param token
-     * @param userDetails
-     * @return
+     * @param token       The JWT token to validate.
+     * @param userDetails The UserDetails object against which to validate the token.
+     * @return True if the token is valid, false otherwise.
      */
     @Override
     public boolean isTokenValid(String token, UserDetails userDetails) {
