@@ -29,6 +29,7 @@ public class TokenVerificationServiceImpl implements TokenVerificationService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    //TODO:Add expiration time also to the response
     @Override
     public VerifyResponseDTO verify(VerifyRequestDTO verifyRequestDTO) {
         authenticationManager.authenticate(
@@ -37,8 +38,10 @@ public class TokenVerificationServiceImpl implements TokenVerificationService {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
         var jwt = jwtService.generateToken(user);
         return VerifyResponseDTO.builder()
+                .name(user.getName())
                 .email(user.getEmail())
                 .accessToken(jwt)
+                .role(user.getRole())
                 .build();
     }
 
@@ -50,11 +53,12 @@ public class TokenVerificationServiceImpl implements TokenVerificationService {
                 .email(signUpRequestDTO.getEmail())
                 .password(passwordEncoder.encode(signUpRequestDTO.getPassword()))
                 .role(signUpRequestDTO.getRole()).build();
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
         return SignUpResponseDTO.builder()
-                .name(user.getName())
-                .email(user.getEmail())
-                .role(user.getRole())
+                .id(savedUser.getId())
+                .name(savedUser.getName())
+                .email(savedUser.getEmail())
+                .role(savedUser.getRole())
                 .build();
     }
 }

@@ -1,5 +1,6 @@
 package com.crafters.DataService.dtos;
 
+import com.crafters.DataService.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,9 @@ import java.util.Date;
 @NoArgsConstructor
 @Builder
 public class VerifyResponseDTO {
+    private String name;
     private String email;
+    private Role role;
     private String accessToken;
 
     @Builder.Default
