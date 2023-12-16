@@ -12,7 +12,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-
+/**
+ * Implementation of the TokenVerificationService interface, providing functionality
+ * for user verification and creation of user accounts using JWT tokens.
+ *
+ * TODO: Add expiration time also to the response.
+ */
 @Component
 public class TokenVerificationServiceImpl implements TokenVerificationService {
 
@@ -21,15 +26,27 @@ public class TokenVerificationServiceImpl implements TokenVerificationService {
     private final AuthenticationManager authenticationManager;
 
     private final PasswordEncoder passwordEncoder;
-
+    /**
+     * Constructs a TokenVerificationServiceImpl with the necessary dependencies.
+     *
+     * @param userRepository        The repository for user data.
+     * @param jwtService            The service for JWT token operations.
+     * @param authenticationManager The authentication manager for user authentication.
+     * @param passwordEncoder       The password encoder for encoding user passwords.
+     */
     public TokenVerificationServiceImpl(UserRepository userRepository, JwtUtilsImpl jwtService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
     }
-
-    //TODO:Add expiration time also to the response
+    /**
+     * Verifies a user based on the provided verification request data.
+     *
+     * @param verifyRequestDTO The data transfer object containing information needed for user verification.
+     * @return VerifyResponseDTO containing user details and an access token upon successful verification.
+     * @throws IllegalArgumentException if the provided email or password is invalid.
+     */
     @Override
     public VerifyResponseDTO verify(VerifyRequestDTO verifyRequestDTO) {
         authenticationManager.authenticate(
@@ -44,7 +61,14 @@ public class TokenVerificationServiceImpl implements TokenVerificationService {
                 .role(user.getRole())
                 .build();
     }
-
+    /**
+     * Creates a new user account based on the provided sign-up request data.
+     *
+     * TODO: Add validation for sign-up request data.
+     *
+     * @param signUpRequestDTO The data transfer object containing user registration information.
+     * @return SignUpResponseDTO containing the newly created user's details.
+     */
     @Override
     public SignUpResponseDTO createUser(SignUpRequestDTO signUpRequestDTO) {
         //TODO: validation

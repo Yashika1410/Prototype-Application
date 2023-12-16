@@ -1,30 +1,32 @@
 package com.crafters.DataService.utils;
 
 import org.springframework.security.core.userdetails.UserDetails;
-
+/**
+ * Interface for JWT utility operations, including extracting, generating, and validating JWT tokens.
+ */
 public interface JwtUtils {
     /**
-     * method to extract username from jwt token
+     * Extracts the username from a JWT token.
      *
-     * @param token
-     * @return
+     * @param token The JWT token from which to extract the username.
+     * @return The username extracted from the token.
      */
     String extractUserName(String token);
 
     /**
-     * to generate jwt token
+     * Generates a JWT token using user details.
      *
-     * @param userDetails
-     * @return
+     * @param userDetails The UserDetails object for which to generate the token.
+     * @return The generated JWT token.
      */
     String generateToken(UserDetails userDetails);
 
     /**
-     * to check if token is valid or not
+     * Checks if a JWT token is valid.
      *
-     * @param token
-     * @param userDetails
-     * @return
+     * @param token       The JWT token to validate.
+     * @param userDetails The UserDetails object against which to validate the token.
+     * @return True if the token is valid, false otherwise.
      */
     boolean isTokenValid(String token, UserDetails userDetails);
 

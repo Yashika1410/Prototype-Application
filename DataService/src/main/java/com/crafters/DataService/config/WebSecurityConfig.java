@@ -16,24 +16,31 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
-
+/**
+ * Configuration class for defining the security settings of the application.
+ */
 @Configuration
 public class WebSecurityConfig {
 
     private final UserServiceImpl userService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
+    /**
+     * Constructs a WebSecurityConfig with the necessary dependencies.
+     *
+     * @param userService           The user service implementation.
+     * @param jwtAuthenticationFilter The JWT authentication filter.
+     */
     public WebSecurityConfig(UserServiceImpl userService, JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.userService = userService;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     /**
-     * security filter chain bean
+     * Configures the security filter chain for the application.
      *
-     * @param httpSecurity
-     * @return
-     * @throws Exception
+     * @param httpSecurity The HttpSecurity object to configure.
+     * @return A SecurityFilterChain configured for the application.
+     * @throws Exception If an exception occurs during configuration.
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -51,9 +58,9 @@ public class WebSecurityConfig {
     }
 
     /**
-     * password encoder
+     * Configures the password encoder bean.
      *
-     * @return
+     * @return A PasswordEncoder bean using BCrypt.
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -61,9 +68,9 @@ public class WebSecurityConfig {
     }
 
     /**
-     * authentication provider
+     * Configures the authentication provider bean.
      *
-     * @return
+     * @return An AuthenticationProvider bean using DaoAuthenticationProvider.
      */
     @Bean
     public AuthenticationProvider authenticationProvider() {
@@ -74,11 +81,11 @@ public class WebSecurityConfig {
     }
 
     /**
-     * authentication manager
+     * Configures the authentication manager bean.
      *
-     * @param config
-     * @return
-     * @throws Exception
+     * @param config The AuthenticationConfiguration to get the authentication manager.
+     * @return An AuthenticationManager bean.
+     * @throws Exception If an exception occurs during configuration.
      */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
