@@ -5,9 +5,11 @@ import com.crafters.DataService.dtos.SignUpResponseDTO;
 import com.crafters.DataService.dtos.VerifyRequestDTO;
 import com.crafters.DataService.dtos.VerifyResponseDTO;
 import com.crafters.DataService.entities.User;
+import com.crafters.DataService.exceptions.ValidationFailureException;
 import com.crafters.DataService.repositories.UserRepository;
 import com.crafters.DataService.services.TokenVerificationService;
 import com.crafters.DataService.utils.Impl.JwtUtilsImpl;
+import com.crafters.DataService.validators.ValidationUtils;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -86,30 +88,7 @@ public class TokenVerificationServiceImpl implements TokenVerificationService {
         @Override
         public SignUpResponseDTO createUser(SignUpRequestDTO signUpRequestDTO) {
 
-                if (StringUtils.isEmpty(signUpRequestDTO.getName())
-                                || StringUtils.isEmpty(signUpRequestDTO.getEmail())) {
-                        throw new IllegalArgumentException("Name and email cannot be empty");
-                }
-                // Check if the email is already registered
-                if (userRepository.existsByEmail(signUpRequestDTO.getEmail())) {
-                        throw new IllegalArgumentException("Email is already in use");
-                }
-                // Check if the name is already registered
-                if (userRepository.existsByName(signUpRequestDTO.getName())) {
-                        throw new IllegalArgumentException("Name is already in use");
-                }
-                String password = signUpRequestDTO.getPassword();
-                if (!isPasswordStrong(password)) {
-                        throw new IllegalArgumentException(
-                                        "Password must be at least 8 characters long and contain a mix of uppercase and lowercase letters, numbers, and special characters");
-                }
-
-                // Validate email format
-                String email = signUpRequestDTO.getEmail();
-                if (!isValidEmail(email)) {
-                        throw new IllegalArgumentException("Invalid email format");
-                }
-                // TODO: validation
+                ValidationUtils.validateSignUpRequest(userRepository, signUpRequestDTO);
                 User user = User.builder()
                                 .name(signUpRequestDTO.getName())
                                 .email(signUpRequestDTO.getEmail())
@@ -122,20 +101,5 @@ public class TokenVerificationServiceImpl implements TokenVerificationService {
                                 .email(savedUser.getEmail())
                                 .role(savedUser.getRole())
                                 .build();
-        }
-
-        // Helper method to check password strength
-        private boolean isPasswordStrong(String password) {
-                // Password must be at least 8 characters long and contain a mix of uppercase
-                // and lowercase letters, numbers, and special characters
-                String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
-                return password.matches(passwordRegex);
-        }
-
-        // Helper method to check email format
-        private boolean isValidEmail(String email) {
-                // Basic email format validation using a regular expression
-                String emailRegex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$";
-                return email.matches(emailRegex);
         }
 }
