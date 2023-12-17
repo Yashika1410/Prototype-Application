@@ -46,10 +46,15 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/user/**")
+                        .requestMatchers(
+                                          "/api/v1/auth/**",
+                                          "/api-docs/**",
+                                          "/swagger-ui/**"
+                                          )
+                        .permitAll()
+                        .requestMatchers("/api/v1/user/**")
                         .hasAuthority("USER")
-                        .requestMatchers("/api/admin/**")
+                        .requestMatchers("/api/v1/admin/**")
                         .hasAuthority("ADMIN").anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationProvider())

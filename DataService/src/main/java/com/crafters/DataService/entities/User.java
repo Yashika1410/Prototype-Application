@@ -32,9 +32,9 @@ public class User implements UserDetails {
 
     private String password;
 
-    private Date createdAt = new Date();
+    private Date createdAt;
 
-    private Date updatedAt = new Date();
+    private Date updatedAt;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
