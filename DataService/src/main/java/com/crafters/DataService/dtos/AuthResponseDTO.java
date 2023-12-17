@@ -12,11 +12,13 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SignUpResponseDTO {
-    private String id;
+public class AuthResponseDTO {
+    private String userId;
     private String name;
     private String email;
     private Role role;
+    private String accessToken;
+
     @Builder.Default
     private Date createdAt = new Date();
 }

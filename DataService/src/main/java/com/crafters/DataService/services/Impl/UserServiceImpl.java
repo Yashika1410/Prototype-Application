@@ -1,13 +1,14 @@
 package com.crafters.DataService.services.Impl;
 
-import com.crafters.DataService.dtos.SignUpRequestDTO;
-import com.crafters.DataService.dtos.SignUpResponseDTO;
 import com.crafters.DataService.entities.User;
 import com.crafters.DataService.repositories.UserRepository;
 import com.crafters.DataService.services.UserService;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  * Implementation of the UserService interface, providing user-related operations.
@@ -33,6 +34,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Invalid user details"));
+    }
+    @Override
+    public User getUserById(String userId) {
+        // TODO Auto-generated method stub
+        return userRepository.findById(userId).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,( "User by this "+userId+" doesn't exists")));
     }
 
 

@@ -1,10 +1,9 @@
 package com.crafters.DataService.controllers;
 
 import com.crafters.DataService.dtos.SignUpRequestDTO;
-import com.crafters.DataService.dtos.SignUpResponseDTO;
-import com.crafters.DataService.dtos.VerifyRequestDTO;
-import com.crafters.DataService.dtos.VerifyResponseDTO;
-import com.crafters.DataService.services.Impl.TokenVerificationServiceImpl;
+import com.crafters.DataService.dtos.LoginRequestDTO;
+import com.crafters.DataService.dtos.AuthResponseDTO;
+import com.crafters.DataService.services.Impl.AuthServiceImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,10 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/auth")
-public class VerifyController {
+@RequestMapping("/api/v1/auth")
+public class AuthController {
 
-    private TokenVerificationServiceImpl tokenVerificationService;
+    private AuthServiceImpl authService;
 
     /**
      * Endpoint for verifying user tokens.
@@ -32,9 +31,9 @@ public class VerifyController {
      * @param verifyRequestDTO The data transfer object containing information needed for user verification.
      * @return ResponseEntity containing the response data after verifying the user.
      */
-    @PostMapping("/verify")
-    public ResponseEntity<VerifyResponseDTO> verifyUser(@RequestBody VerifyRequestDTO verifyRequestDTO) {
-        return new ResponseEntity<>(tokenVerificationService.verify(verifyRequestDTO), HttpStatus.OK);
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponseDTO> loginUser(@RequestBody LoginRequestDTO verifyRequestDTO) {
+        return new ResponseEntity<>(authService.verify(verifyRequestDTO), HttpStatus.OK);
     }
     /**
      * Endpoint for creating new user accounts.
@@ -42,8 +41,8 @@ public class VerifyController {
      * @param signUpRequestDTO The data transfer object containing user registration information.
      * @return ResponseEntity containing the response data after creating the user account.
      */
-    @PostMapping("/user")
-    public ResponseEntity<SignUpResponseDTO> createUser(@RequestBody SignUpRequestDTO signUpRequestDTO) {
-        return new ResponseEntity<>(tokenVerificationService.createUser(signUpRequestDTO), HttpStatus.CREATED);
+    @PostMapping("/sign-up")
+    public ResponseEntity<AuthResponseDTO> createUser(@RequestBody SignUpRequestDTO signUpRequestDTO) {
+        return new ResponseEntity<>(authService.createUser(signUpRequestDTO), HttpStatus.CREATED);
     }
 }
