@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,4 +17,5 @@ public class ItemTotalRequestDTO {
     private String name;
     private Attribute attribute;
     private List<String> itemIds;
+    private Map<String, Integer> yearTotalValue;
 }

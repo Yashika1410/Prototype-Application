@@ -15,7 +15,7 @@ import java.util.Map;
 public class ItemTotalResponseDTO {
     private String id;
     private String name;
-    private Map<String, String> totalValue;
+    private Map<String, Integer> totalValue;
 
     public ItemTotalResponseDTO(ItemTotal itemTotal) {
         this.id = itemTotal.getId();

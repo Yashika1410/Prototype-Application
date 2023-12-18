@@ -2,6 +2,7 @@ package com.crafters.DataService.services.Impl;
 
 import com.crafters.DataService.dtos.ItemTotalRequestDTO;
 import com.crafters.DataService.dtos.ItemTotalResponseDTO;
+import com.crafters.DataService.entities.Attribute;
 import com.crafters.DataService.entities.Item;
 import com.crafters.DataService.entities.ItemTotal;
 import com.crafters.DataService.repositories.ItemRepository;
@@ -30,31 +31,27 @@ public class ItemTotalServiceImpl implements ItemTotalService {
     public ItemTotalResponseDTO createItemTotal(String userId, ItemTotalRequestDTO itemTotalRequestDTO) {
         //TODO check if user present or not
         List<String> itemIds = itemTotalRequestDTO.getItemIds();
+        Attribute attribute = itemTotalRequestDTO.getAttribute();
+
         List<Item> items = itemRepository.findByUser_IdAndIdIn(userId, itemIds);
-        Map<String, String> yearSums = new HashMap<>();
+
+        Map<String, Integer> yearSums = new HashMap<>();
 
         for (Item item : items) {
             if (item.getCollectionName().equals(itemTotalRequestDTO.getName())) {
-                Map<String, String> yearValue = item.getYearValue();
+                Map<String, Integer> yearValue = item.getYearValue();
 
-                for (Map.Entry<String, String> entry : yearValue.entrySet()) {
+                for (Map.Entry<String, Integer> entry : yearValue.entrySet()) {
                     String year = entry.getKey();
-                    int value = Integer.parseInt(entry.getValue());
+                    int value = entry.getValue();
 
-                    String currentSum = yearSums.getOrDefault(year, "0");
-                    int newSum = Integer.parseInt(currentSum) + value;
-                    yearSums.put(year, String.valueOf(newSum));
+                    int currentSum = yearSums.getOrDefault(year, 0);
+                    int newSum = currentSum + value;
+                    yearSums.put(year, newSum);
                 }
             }
         }
-        ItemTotal itemTotal = itemTotalRepository.save(ItemTotal.builder()
-                .name(itemTotalRequestDTO.getName())
-                .user(userService.getUserById(userId))
-                .items(items)
-                .yearTotalValue(yearSums)
-                .createdAt(new Date(System.currentTimeMillis()))
-                .updatedAt(new Date(System.currentTimeMillis()))
-                .build());
+        ItemTotal itemTotal = itemTotalRepository.save(ItemTotal.builder().name(itemTotalRequestDTO.getName()).user(userService.getUserById(userId)).items(items).yearTotalValue(yearSums).createdAt(new Date(System.currentTimeMillis())).updatedAt(new Date(System.currentTimeMillis())).build());
 
         return new ItemTotalResponseDTO(itemTotal);
     }
