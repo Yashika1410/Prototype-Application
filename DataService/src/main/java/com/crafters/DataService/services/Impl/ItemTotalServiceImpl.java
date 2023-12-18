@@ -27,47 +27,54 @@ public class ItemTotalServiceImpl implements ItemTotalService {
     }
 
     public ItemTotalResponseDTO createItemTotal(String userId, ItemTotalRequestDTO itemTotalRequestDTO) {
-        //TODO check if user present or not
+
         List<String> itemIds = itemTotalRequestDTO.getItemIds();
         Attribute attribute = itemTotalRequestDTO.getAttribute();
         if (itemTotalRequestDTO.getItemIds().isEmpty()) {
             throw new IllegalArgumentException("Invalid Item Ids");
         }
         List<Item> items = itemRepository.findByUser_IdAndIdIn(userId, itemIds);
-        List<Item> filteredItems = new ArrayList<>();
-        Map<String, Integer> yearSums = itemTotalRequestDTO.getYearTotalValue();
-
-        items.stream()
-                .filter(item ->
-                        String.valueOf(item.getAttributes().get(attribute.getAttributeName()))
-                                .equalsIgnoreCase(attribute.getAttributeValue()))
-                .forEach(filteredItems::add);
-
-        if (itemTotalRequestDTO.getYearTotalValue().isEmpty()) {
-            if (!allItemsHaveSameKeys(items)) {
-                throw new IllegalStateException("All attributes must be of the same type");
-            }
-
-            yearSums = filteredItems.stream()
-                    .flatMap(item -> item.getYearValue().entrySet().stream())
-                    .collect(Collectors.toMap(
-                            Map.Entry::getKey,
-                            Map.Entry::getValue,
-                            Integer::sum
-                    ));
-        }
+        List<Item> filteredItems = filterItemsByAttribute(items, attribute);
+        Map<String, Integer> yearSums = calculateYearSums(itemTotalRequestDTO.getYearTotalValue(), filteredItems);
 
         ItemTotal itemTotal = itemTotalRepository
                 .save(ItemTotal.builder()
                         .name(itemTotalRequestDTO.getName())
                         .user(userService.getUserById(userId))
                         .attribute(itemTotalRequestDTO.getAttribute())
-                        .items(filteredItems).yearTotalValue(yearSums)
+                        .items(filteredItems)
+                        .yearTotalValue(yearSums)
                         .createdAt(new Date(System.currentTimeMillis()))
                         .updatedAt(new Date(System.currentTimeMillis()))
                         .build());
 
+        createRelationWIthItems(filteredItems, itemTotal);
         return new ItemTotalResponseDTO(itemTotal);
+    }
+
+    private List<Item> filterItemsByAttribute(List<Item> items, Attribute attribute) {
+        return items.stream()
+                .filter(item -> String.valueOf(item.getAttributes().get(attribute.getAttributeName()))
+                        .equalsIgnoreCase(attribute.getAttributeValue()))
+                .collect(Collectors.toList());
+    }
+
+    private Map<String, Integer> calculateYearSums(Map<String, Integer> yearTotalValue, List<Item> filteredItems) {
+        if (yearTotalValue.isEmpty()) {
+            if (!allItemsHaveSameKeys(filteredItems)) {
+                throw new IllegalStateException("All attributes must be of the same type");
+            }
+
+            return filteredItems.stream()
+                    .flatMap(item -> item.getYearValue().entrySet().stream())
+                    .collect(Collectors.toMap(
+                            Map.Entry::getKey,
+                            Map.Entry::getValue,
+                            Integer::sum
+                    ));
+        } else {
+            return yearTotalValue;
+        }
     }
 
     private boolean allItemsHaveSameKeys(List<Item> items) {
@@ -77,5 +84,15 @@ public class ItemTotalServiceImpl implements ItemTotalService {
         Set<String> referenceKeys = items.get(0).getYearValue().keySet();
         return items.stream()
                 .allMatch(item -> item.getYearValue().keySet().equals(referenceKeys));
+    }
+
+    private void createRelationWIthItems(List<Item> filteredItems, ItemTotal itemTotal) {
+        for (Item item : filteredItems) {
+            if (item.getItemTotals() == null) {
+                item.setItemTotals(new ArrayList<>());
+            }
+            item.getItemTotals().add(itemTotal);
+        }
+        itemRepository.saveAll(filteredItems);
     }
 }
