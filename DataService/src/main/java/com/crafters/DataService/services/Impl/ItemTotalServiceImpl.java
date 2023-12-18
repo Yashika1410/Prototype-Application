@@ -30,7 +30,9 @@ public class ItemTotalServiceImpl implements ItemTotalService {
         //TODO check if user present or not
         List<String> itemIds = itemTotalRequestDTO.getItemIds();
         Attribute attribute = itemTotalRequestDTO.getAttribute();
-
+        if (itemTotalRequestDTO.getItemIds().isEmpty()) {
+            throw new IllegalArgumentException("Invalid Item Ids");
+        }
         List<Item> items = itemRepository.findByUser_IdAndIdIn(userId, itemIds);
         List<Item> filteredItems = new ArrayList<>();
         Map<String, Integer> yearSums = itemTotalRequestDTO.getYearTotalValue();
@@ -59,6 +61,7 @@ public class ItemTotalServiceImpl implements ItemTotalService {
                 .save(ItemTotal.builder()
                         .name(itemTotalRequestDTO.getName())
                         .user(userService.getUserById(userId))
+                        .attribute(itemTotalRequestDTO.getAttribute())
                         .items(filteredItems).yearTotalValue(yearSums)
                         .createdAt(new Date(System.currentTimeMillis()))
                         .updatedAt(new Date(System.currentTimeMillis()))
