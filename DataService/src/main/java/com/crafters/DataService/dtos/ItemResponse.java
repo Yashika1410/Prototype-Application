@@ -19,7 +19,7 @@ public class ItemResponse {
     private String name;
     private String collectionName;
     private Map<String,Object> attributes;
-    private Map<Date,Integer> yearValue; 
+    private Map<String,String> yearValue;
 
     public ItemResponse(Item item){
         this.id=item.getId();

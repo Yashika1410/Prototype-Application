@@ -14,5 +14,5 @@ public class CreateItemRequestDTO {
     private String name;
     private String collectionName;
     private Map<String,Object> attributes;
-    private Map<Date, Integer> yearValue;
+    private Map<String, String> yearValue;
 }

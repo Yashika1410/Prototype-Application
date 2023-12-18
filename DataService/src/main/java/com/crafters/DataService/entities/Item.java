@@ -27,7 +27,7 @@ public class Item {
     private Map<String,Object> attributes;
     @DBRef
     private User user;
-    private Map<Date,Integer> yearValue;
+    private Map<String,String> yearValue;
     @Nullable
     private String itemTotalId;
     private Date createdAt;
