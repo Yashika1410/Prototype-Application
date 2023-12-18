@@ -29,13 +29,15 @@ public class ItemTotalController {
         return new ResponseEntity<>(itemTotalService.createItemTotal(authService.getUserId(authentication), itemTotalRequestDTO), HttpStatus.CREATED);
     }
 
-
     @GetMapping("")
-    @Operation(summary = "List of Itemtotal",
+    @Operation(summary = "List of Itemtotal on basis of attributes name and values",
             security = @SecurityRequirement(name = "bearerAuth"))
-    public ResponseEntity<List<ItemTotalResponseDTO>> getAllItemTotals(Authentication authentication) {
-        List<ItemTotalResponseDTO> allItemTotals = itemTotalService.getAllItemTotal(authService.getUserId(authentication));
-        return new ResponseEntity<>(allItemTotals, HttpStatus.OK);
+    public ResponseEntity<List<ItemTotalResponseDTO>> getAllItemTotals(
+            @RequestParam(required = false) String attributeName,
+            @RequestParam(required = false) String attributeValue,
+            Authentication authentication) {
+
+        return new ResponseEntity<>(itemTotalService.getItems(authService.getUserId(authentication),attributeName,attributeValue), HttpStatus.OK);
     }
 
 }

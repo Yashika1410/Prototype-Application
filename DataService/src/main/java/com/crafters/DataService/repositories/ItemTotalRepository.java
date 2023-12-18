@@ -9,4 +9,6 @@ import com.crafters.DataService.entities.ItemTotal;
 
 public interface ItemTotalRepository extends MongoRepository<ItemTotal, String> {
     List<Item> findByUser(String userId);
+
+    List<ItemTotal> findByUser_Id(String userId);
 }

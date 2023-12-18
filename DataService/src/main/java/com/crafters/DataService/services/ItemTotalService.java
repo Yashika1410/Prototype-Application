@@ -11,4 +11,6 @@ public interface ItemTotalService {
     public ItemTotalResponseDTO createItemTotal(String userId, ItemTotalRequestDTO itemTotalRequestDTO);
     List<ItemTotalResponseDTO> getAllItemTotal(String userId);
 
+    List<ItemTotalResponseDTO> getItemTotalsByAttribute(String userId, String attributeName, String attributeValue);
+
 }
