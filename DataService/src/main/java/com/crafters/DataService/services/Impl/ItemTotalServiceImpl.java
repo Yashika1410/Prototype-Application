@@ -11,10 +11,7 @@ import com.crafters.DataService.repositories.ItemTotalRepository;
 import com.crafters.DataService.services.ItemTotalService;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,33 +34,48 @@ public class ItemTotalServiceImpl implements ItemTotalService {
         Attribute attribute = itemTotalRequestDTO.getAttribute();
 
         List<Item> items = itemRepository.findByUser_IdAndIdIn(userId, itemIds);
+        List<Item> filteredItems = new ArrayList<>();
+        Map<String, Integer> yearSums = itemTotalRequestDTO.getYearTotalValue();
 
-        Map<String, Integer> yearSums = new HashMap<>();
+        items.stream()
+                .filter(item ->
+                        String.valueOf(item.getAttributes().get(attribute.getAttributeName()))
+                                .equalsIgnoreCase(attribute.getAttributeValue()))
+                .forEach(filteredItems::add);
 
-        for (Item item : items) {
-            if (item.getCollectionName().equals(itemTotalRequestDTO.getName())) {
-                Map<String, Integer> yearValue = item.getYearValue();
-
-                for (Map.Entry<String, Integer> entry : yearValue.entrySet()) {
-                    String year = entry.getKey();
-                    int value = entry.getValue();
-
-                    int currentSum = yearSums.getOrDefault(year, 0);
-                    int newSum = currentSum + value;
-                    yearSums.put(year, newSum);
-                }
+        if (itemTotalRequestDTO.getYearTotalValue().isEmpty()) {
+            if (!allItemsHaveSameKeys(items)) {
+                throw new IllegalStateException("All attributes must be of the same type");
             }
+
+            yearSums = filteredItems.stream()
+                    .flatMap(item -> item.getYearValue().entrySet().stream())
+                    .collect(Collectors.toMap(
+                            Map.Entry::getKey,
+                            Map.Entry::getValue,
+                            Integer::sum
+                    ));
         }
-        ItemTotal itemTotal = itemTotalRepository.save(
-        ItemTotal.builder()
-        .name(itemTotalRequestDTO.getName())
-        .user(userService.getUserById(userId))
-        .attribute(attribute)
-        .items(items).yearTotalValue(yearSums)
-        .createdAt(new Date(System.currentTimeMillis()))
-        .updatedAt(new Date(System.currentTimeMillis())).build());
+
+        ItemTotal itemTotal = itemTotalRepository
+                .save(ItemTotal.builder()
+                        .name(itemTotalRequestDTO.getName())
+                        .user(userService.getUserById(userId))
+                        .items(filteredItems).yearTotalValue(yearSums)
+                        .createdAt(new Date(System.currentTimeMillis()))
+                        .updatedAt(new Date(System.currentTimeMillis()))
+                        .build());
 
         return new ItemTotalResponseDTO(itemTotal);
+    }
+
+    private boolean allItemsHaveSameKeys(List<Item> items) {
+        if (items.isEmpty()) {
+            return true;
+        }
+        Set<String> referenceKeys = items.get(0).getYearValue().keySet();
+        return items.stream()
+                .allMatch(item -> item.getYearValue().keySet().equals(referenceKeys));
     }
     @Override
     public ItemTotalByItemNameResponse getTotalValueByItemNameAndUserId(String userId,String itemName){
