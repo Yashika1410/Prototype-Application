@@ -1,6 +1,7 @@
 package com.crafters.DataService.repositories;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -20,5 +21,5 @@ public interface ItemRepository extends MongoRepository<Item, String>{
     List<Item> findAll(String userId);
 
     List<Item> findByUser_IdAndIdIn(String userId, List<String> itemIds);
-    
+    Optional<Item> findByIdAndUser_Id(String itemId, String userId);
 }

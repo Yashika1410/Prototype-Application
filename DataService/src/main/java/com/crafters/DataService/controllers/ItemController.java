@@ -1,7 +1,7 @@
 package com.crafters.DataService.controllers;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import com.crafters.DataService.dtos.CreateItemRequestDTO;
 import com.crafters.DataService.dtos.ItemResponse;
@@ -12,8 +12,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * Controller class for handling item-related operations.
@@ -37,7 +35,12 @@ public class ItemController {
     public ItemResponse createItem(@RequestBody CreateItemRequestDTO createItemRequestDTO,Authentication authentication) {
         return itemService.CreateNewItem(authService.getUserId(authentication), createItemRequestDTO);
     }
-    
-    
+
+    @GetMapping("/{itemId}")
+    public ResponseEntity<ItemResponse> getItemById(@PathVariable String itemId,Authentication authentication) {
+        // Call the service to get the item by ID
+        ItemResponse itemResponse = itemService.getItemById(authService.getUserId(authentication), itemId);
+        return ResponseEntity.ok(itemResponse);
+    }
 
 }

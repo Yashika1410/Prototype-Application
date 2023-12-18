@@ -14,5 +14,6 @@ public interface ItemService {
      * @return The response containing information about the created item.
      */
     ItemResponse CreateNewItem(String userId,CreateItemRequestDTO createItemRequestDTO);
+    ItemResponse getItemById(String userId,String itemId);
     
 } 
