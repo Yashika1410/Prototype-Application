@@ -35,6 +35,13 @@ public class UserServiceImpl implements UserService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Invalid user details"));
     }
+    /**
+     * Retrieves a user based on the specified user ID.
+     *
+     * @param userId The ID of the user to retrieve.
+     * @return The User object associated with the provided user ID.
+     * @throws ResponseStatusException If no user is found with the specified ID, a NOT_FOUND status exception is thrown.
+     */
     @Override
     public User getUserById(String userId) {
         // TODO Auto-generated method stub

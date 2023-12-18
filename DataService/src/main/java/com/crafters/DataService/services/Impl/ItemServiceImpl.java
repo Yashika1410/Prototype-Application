@@ -8,6 +8,10 @@ import com.crafters.DataService.dtos.ItemResponse;
 import com.crafters.DataService.entities.Item;
 import com.crafters.DataService.repositories.ItemRepository;
 import com.crafters.DataService.services.ItemService;
+/**
+ * Implementation of the {@link com.crafters.DataService.services.ItemService} interface.
+ * Provides methods for handling operations related to items.
+ */
 @Component
 public class ItemServiceImpl implements ItemService {
 
@@ -18,7 +22,13 @@ public class ItemServiceImpl implements ItemService {
         this.userService=userServiceImpl;
         this.itemRepository=itemRepository;
     }
-
+    /**
+     * Creates a new item based on the provided information.
+     *
+     * @param userId                The user ID associated with the item.
+     * @param createItemRequestDTO  The DTO containing information for creating a new item.
+     * @return The response containing information about the created item.
+     */
     @Override
     public ItemResponse CreateNewItem(String userId, CreateItemRequestDTO createItemRequestDTO) {
         // TODO Auto-generated method stub

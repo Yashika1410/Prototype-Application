@@ -15,14 +15,22 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
+/**
+ * Controller class for handling item-related operations.
+ */
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/v1/items")
 public class ItemController {
     private AuthServiceImpl authService;
     private ItemServiceImpl itemService;
-
+    /**
+     * Creates a new item.
+     *
+     * @param createItemRequestDTO The DTO containing the information for creating a new item.
+     * @param authentication       The authentication object representing the current user.
+     * @return The response containing information about the created item.
+     */
     @PostMapping("")
     @Operation(summary = "Create new Item",
   security = @SecurityRequirement(name = "bearerAuth"))

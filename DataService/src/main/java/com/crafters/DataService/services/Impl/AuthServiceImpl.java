@@ -107,7 +107,12 @@ public class AuthServiceImpl implements AuthService {
                                 .accessToken(jwt)
                                 .build();
         }
-        
+        /**
+         * Retrieves the user ID from the provided Authentication object.
+         *
+         * @param authentication The Authentication object representing the current user.
+         * @return The user ID extracted from the Authentication object.
+         */
         @Override
         public String getUserId(Authentication authentication) {
                 return ((User) authentication.getPrincipal()).getId();
