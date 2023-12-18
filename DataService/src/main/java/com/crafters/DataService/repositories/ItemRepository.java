@@ -10,5 +10,7 @@ public interface ItemRepository extends MongoRepository<Item, String>{
 
     @Query("{'userId:?0'}")
     List<Item> findAll(String userId);
+
+    List<Item> findByUser_IdAndIdIn(String userId, List<String> itemIds);
     
 }

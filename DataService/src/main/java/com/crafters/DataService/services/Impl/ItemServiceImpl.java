@@ -11,8 +11,8 @@ import com.crafters.DataService.services.ItemService;
 @Component
 public class ItemServiceImpl implements ItemService {
 
-    private ItemRepository itemRepository;
-    private UserServiceImpl userService;
+    private final ItemRepository itemRepository;
+    private final UserServiceImpl userService;
 
     public ItemServiceImpl(ItemRepository itemRepository,UserServiceImpl userServiceImpl){
         this.userService=userServiceImpl;
@@ -21,6 +21,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemResponse CreateNewItem(String userId, CreateItemRequestDTO createItemRequestDTO) {
+        // check if user present or not
         // TODO Auto-generated method stub
         Item item = itemRepository.save(Item.builder().name(createItemRequestDTO.getName())
                         .user(userService.getUserById(userId))

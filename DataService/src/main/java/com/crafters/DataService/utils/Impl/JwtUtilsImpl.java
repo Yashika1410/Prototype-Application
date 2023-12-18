@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import static com.crafters.DataService.constants.JwtConstants.SECRET_KEY;
+
 /**
  * Implementation of the JwtUtils interface, providing functionality for JWT token operations.
  */
@@ -61,6 +62,7 @@ public class JwtUtilsImpl implements JwtUtils {
         return claimsResolvers.apply(claims);
     }
 
+    //TODO: convert expiryTime to constant
     private String generateAccessToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts.builder().setClaims(extraClaims).setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
