@@ -20,20 +20,16 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-//TODO: add some validations like not null ,etc. && comments
+
 public class User implements UserDetails {
 
     @Id
     private String id;
-
     private String name;
     private Role role;
     private String email;
-
     private String password;
-
     private Date createdAt;
-
     private Date updatedAt;
 
     @Override

@@ -16,6 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
+
 /**
  * Configuration class for defining the security settings of the application.
  */
@@ -24,10 +25,11 @@ public class WebSecurityConfig {
 
     private final UserServiceImpl userService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
     /**
      * Constructs a WebSecurityConfig with the necessary dependencies.
      *
-     * @param userService           The user service implementation.
+     * @param userService             The user service implementation.
      * @param jwtAuthenticationFilter The JWT authentication filter.
      */
     public WebSecurityConfig(UserServiceImpl userService, JwtAuthenticationFilter jwtAuthenticationFilter) {
@@ -47,10 +49,10 @@ public class WebSecurityConfig {
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
-                                          "/api/v1/auth/**",
-                                          "/api-docs/**",
-                                          "/swagger-ui/**"
-                                          )
+                                "/api/v1/auth/**",
+                                "/api-docs/**",
+                                "/swagger-ui/**"
+                        )
                         .permitAll()
                         .requestMatchers("/api/v1/user/**")
                         .hasAuthority("USER")
