@@ -25,6 +25,7 @@ jobs:
       - name: change dir
         run: |
           cd ./DataService
+          ls
 
       - name: Lint Code Base
         uses: github/super-linter@v4
