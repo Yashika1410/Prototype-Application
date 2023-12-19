@@ -1,18 +1,17 @@
 package com.crafters.DataService.entities;
 
-import java.util.Date;
-import java.util.Map;
-
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import com.mongodb.lang.Nullable;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Document(collection = "items")
 @Data
@@ -24,12 +23,13 @@ public class Item {
     private String id;
     private String name;
     private String collectionName;
-    private Map<String,Object> attributes;
+    private Map<String, Object> attributes;
     @DBRef
     private User user;
-    private Map<String,Integer> yearValue;
-    @Nullable
-    private String itemTotalId;
+    private Map<String, Integer> yearValue;
+    @DBRef
+    private List<ItemTotal> itemTotals;
     private Date createdAt;
     private Date updatedAt;
+
 }
