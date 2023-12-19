@@ -33,7 +33,7 @@ public class ItemTotalController {
      * @return
      */
     @PostMapping("")
-    @Operation(summary = "Create new Item",
+    @Operation(summary = "Create new Item Total",
             security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<ItemTotalResponseDTO> createItem(@RequestBody ItemTotalRequestDTO itemTotalRequestDTO, Authentication authentication) {
         return new ResponseEntity<>(itemTotalService.createItemTotal(authService.getUserId(authentication), itemTotalRequestDTO), HttpStatus.CREATED);
