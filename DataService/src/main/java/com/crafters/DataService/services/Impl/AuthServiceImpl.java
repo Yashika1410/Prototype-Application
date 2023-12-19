@@ -89,27 +89,32 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponseDTO createUser(SignUpRequestDTO signUpRequestDTO) {
 
-        ValidationUtils.validateSignUpRequest(userRepository, signUpRequestDTO);
-        User user = User.builder()
-                .name(signUpRequestDTO.getName())
-                .email(signUpRequestDTO.getEmail())
-                .password(passwordEncoder.encode(signUpRequestDTO.getPassword()))
-                .createdAt(new Date(System.currentTimeMillis()))
-                .updatedAt(new Date(System.currentTimeMillis()))
-                .role(signUpRequestDTO.getRole()).build();
-        User savedUser = userRepository.save(user);
-        var jwt = jwtService.generateToken(savedUser);
-        return AuthResponseDTO.builder()
-                .userId(savedUser.getId())
-                .name(savedUser.getName())
-                .email(savedUser.getEmail())
-                .role(savedUser.getRole())
-                .accessToken(jwt)
-                .build();
-    }
-
-    @Override
-    public String getUserId(Authentication authentication) {
-        return ((User) authentication.getPrincipal()).getId();
-    }
+                ValidationUtils.validateSignUpRequest(userRepository, signUpRequestDTO);
+                User user = User.builder()
+                                .name(signUpRequestDTO.getName())
+                                .email(signUpRequestDTO.getEmail())
+                                .password(passwordEncoder.encode(signUpRequestDTO.getPassword()))
+                                .createdAt(new Date(System.currentTimeMillis()))
+                                .updatedAt(new Date(System.currentTimeMillis()))
+                                .role(signUpRequestDTO.getRole()).build();
+                User savedUser = userRepository.save(user);
+                var jwt = jwtService.generateToken(savedUser);
+                return AuthResponseDTO.builder()
+                                .userId(savedUser.getId())
+                                .name(savedUser.getName())
+                                .email(savedUser.getEmail())
+                                .role(savedUser.getRole())
+                                .accessToken(jwt)
+                                .build();
+        }
+        /**
+         * Retrieves the user ID from the provided Authentication object.
+         *
+         * @param authentication The Authentication object representing the current user.
+         * @return The user ID extracted from the Authentication object.
+         */
+        @Override
+        public String getUserId(Authentication authentication) {
+                return ((User) authentication.getPrincipal()).getId();
+        }
 }
