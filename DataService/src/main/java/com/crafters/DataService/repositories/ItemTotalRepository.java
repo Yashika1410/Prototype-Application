@@ -1,6 +1,7 @@
 package com.crafters.DataService.repositories;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 
@@ -19,4 +20,5 @@ public interface ItemTotalRepository extends MongoRepository<ItemTotal, String> 
      * @return A list of items associated with the specified user ID.
      */
     List<Item> findByUser(String userId);
+    Optional<ItemTotal> findByIdAndUser_Id(String itemTotalId, String userId);
 }

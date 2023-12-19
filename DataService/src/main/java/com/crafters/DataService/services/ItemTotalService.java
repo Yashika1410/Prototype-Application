@@ -7,4 +7,5 @@ import com.crafters.DataService.dtos.ItemTotalResponseDTO;
 public interface ItemTotalService {
         public ItemTotalResponseDTO createItemTotal(String userId, ItemTotalRequestDTO itemTotalRequestDTO);
         public ItemTotalByItemNameResponse getTotalValueByItemNameAndUserId(String userId,String itemName);
+        ItemTotalResponseDTO getItemTotalById(String itemTotalId, String userId);
 }

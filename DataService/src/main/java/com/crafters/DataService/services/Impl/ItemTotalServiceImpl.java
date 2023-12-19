@@ -6,6 +6,7 @@ import com.crafters.DataService.dtos.ItemTotalResponseDTO;
 import com.crafters.DataService.entities.Attribute;
 import com.crafters.DataService.entities.Item;
 import com.crafters.DataService.entities.ItemTotal;
+import com.crafters.DataService.exceptions.EntityNotFoundException;
 import com.crafters.DataService.repositories.ItemRepository;
 import com.crafters.DataService.repositories.ItemTotalRepository;
 import com.crafters.DataService.services.ItemTotalService;
@@ -112,5 +113,13 @@ public class ItemTotalServiceImpl implements ItemTotalService {
                     Map.Entry::getKey, Map.Entry::getValue,Integer::sum
                     ))).name(itemName).build();
 
+    }
+
+    @Override
+    public ItemTotalResponseDTO getItemTotalById(String itemTotalId, String userId) {
+        ItemTotal itemTotal = itemTotalRepository.findByIdAndUser_Id(itemTotalId, userId)
+                .orElseThrow(() -> new EntityNotFoundException("ItemTotal not found with id: " + itemTotalId + " for user: " + userId));
+
+        return new ItemTotalResponseDTO(itemTotal);
     }
 }

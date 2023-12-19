@@ -11,12 +11,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -49,6 +44,11 @@ public class ItemTotalController {
             security = @SecurityRequirement(name = "bearerAuth"))
     public ItemTotalByItemNameResponse getTotalByItemName(Authentication authentication,@RequestParam String itemName) {
         return itemTotalService.getTotalValueByItemNameAndUserId(authService.getUserId(authentication), itemName);
+    }
+    @GetMapping("find/{itemTotalId}")
+    public ResponseEntity<ItemTotalResponseDTO> getItemTotalById(@PathVariable String itemTotalId, Authentication authentication) {
+        ItemTotalResponseDTO itemTotalResponse = itemTotalService.getItemTotalById(itemTotalId, authService.getUserId(authentication));
+        return ResponseEntity.ok(itemTotalResponse);
     }
 
 }
