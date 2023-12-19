@@ -11,12 +11,18 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @RestController
@@ -40,6 +46,23 @@ public class ItemTotalController {
     }
 
     /**
+     * @param attributeName
+     * @param attributeValue
+     * @param authentication
+     * @return
+     */
+    @GetMapping("")
+    @Operation(summary = "List of Itemtotal on basis of attributes name and values",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<List<ItemTotalResponseDTO>> getAllItemTotals(
+            @RequestParam(required = false) String attributeName,
+            @RequestParam(required = false) String attributeValue,
+            Authentication authentication) {
+
+        return new ResponseEntity<>(itemTotalService.getItems(authService.getUserId(authentication), attributeName, attributeValue), HttpStatus.OK);
+    }
+
+    /**
      * @param authentication
      * @param itemName
      * @return
@@ -49,6 +72,7 @@ public class ItemTotalController {
             security = @SecurityRequirement(name = "bearerAuth"))
     public ItemTotalByItemNameResponse getTotalByItemName(Authentication authentication,@RequestParam String itemName) {
         return itemTotalService.getTotalValueByItemNameAndUserId(authService.getUserId(authentication), itemName);
+
     }
 
 }

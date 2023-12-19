@@ -19,4 +19,6 @@ public interface ItemTotalRepository extends MongoRepository<ItemTotal, String> 
      * @return A list of items associated with the specified user ID.
      */
     List<Item> findByUser(String userId);
+
+    List<ItemTotal> findByUser_Id(String userId);
 }
