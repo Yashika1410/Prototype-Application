@@ -10,6 +10,8 @@ import com.crafters.DataService.entities.ItemTotal;
  * Repository interface for performing database operations related to the ItemTotal entity.
  */
 public interface ItemTotalRepository extends MongoRepository<ItemTotal, String> {
+
+    List<ItemTotal> findByItemsIn(List<Item> itemIds);
     /**
      * Retrieves a list of items based on the specified user ID.
      *

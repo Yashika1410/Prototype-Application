@@ -1,5 +1,6 @@
 package com.crafters.DataService.services.Impl;
 import java.util.Date;
+import java.util.List;
 
 import com.crafters.DataService.exceptions.EntityNotFoundException;
 import org.springframework.stereotype.Component;
@@ -44,14 +45,19 @@ public class ItemServiceImpl implements ItemService {
                         .build());
         return new ItemResponse(item);
     }
+    
+    public List<ItemResponse> getListOfItemsByFilterAndUserId(String userId,String filter,String filterValue){
+        return itemRepository.findByUserIdAndFilter(userId, filter, filterValue).stream().map(item -> new ItemResponse(item)).toList();
+    }
+
+    public List<ItemResponse> getListOfItemsByUserId(String userId){
+        return itemRepository.findAll(userId).stream().map(item -> new ItemResponse(item)).toList();
 
     @Override
     public ItemResponse getItemById(String userId, String itemId) {
-        // Retrieve the item based on item ID and user ID
         Item item = itemRepository.findByIdAndUser_Id(itemId, userId)
                 .orElseThrow(() -> new EntityNotFoundException("Item not found with id: " + itemId + " for user: " + userId));
-
-        // Convert the Item to ItemResponse
         return new ItemResponse(item);
+
     }
 }

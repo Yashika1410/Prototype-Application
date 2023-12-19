@@ -1,5 +1,6 @@
 package com.crafters.DataService.controllers;
 
+import com.crafters.DataService.dtos.ItemTotalByItemNameResponse;
 import com.crafters.DataService.dtos.ItemTotalRequestDTO;
 import com.crafters.DataService.dtos.ItemTotalResponseDTO;
 import com.crafters.DataService.services.Impl.AuthServiceImpl;
@@ -14,6 +15,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @AllArgsConstructor
@@ -23,12 +27,28 @@ public class ItemTotalController {
     private final AuthServiceImpl authService;
     private final ItemTotalServiceImpl itemTotalService;
 
+    /**
+     * @param itemTotalRequestDTO
+     * @param authentication
+     * @return
+     */
     @PostMapping("")
-    @Operation(summary = "Create new Item",
+    @Operation(summary = "Create new Item Total",
             security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<ItemTotalResponseDTO> createItem(@RequestBody ItemTotalRequestDTO itemTotalRequestDTO, Authentication authentication) {
         return new ResponseEntity<>(itemTotalService.createItemTotal(authService.getUserId(authentication), itemTotalRequestDTO), HttpStatus.CREATED);
     }
 
+    /**
+     * @param authentication
+     * @param itemName
+     * @return
+     */
+    @GetMapping("/{itemName}")
+     @Operation(summary = "Get Total by item Name",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    public ItemTotalByItemNameResponse getTotalByItemName(Authentication authentication,@RequestParam String itemName) {
+        return itemTotalService.getTotalValueByItemNameAndUserId(authService.getUserId(authentication), itemName);
+    }
 
 }
