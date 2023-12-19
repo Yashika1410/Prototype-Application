@@ -11,8 +11,6 @@ import com.crafters.DataService.entities.Item;
  * Repository interface for performing database operations related to the Item entity.
  */
 public interface ItemRepository extends MongoRepository<Item, String>{
-
-    List<Item> findByUser_IdAndIdIn(String userId, List<String> itemIds);
     
     @Query(value = "{'userId':?0,'name':?1}")
     List<Item> findByUser_IDAndName(String userId, String name);
