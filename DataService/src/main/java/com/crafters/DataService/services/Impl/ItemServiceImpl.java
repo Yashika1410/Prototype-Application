@@ -50,8 +50,9 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.findByUserIdAndFilter(userId, filter, filterValue).stream().map(item -> new ItemResponse(item)).toList();
     }
 
-    public List<ItemResponse> getListOfItemsByUserId(String userId){
+    public List<ItemResponse> getListOfItemsByUserId(String userId) {
         return itemRepository.findAll(userId).stream().map(item -> new ItemResponse(item)).toList();
+    }
 
     @Override
     public ItemResponse getItemById(String userId, String itemId) {
