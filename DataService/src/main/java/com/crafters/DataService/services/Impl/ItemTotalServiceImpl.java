@@ -1,5 +1,6 @@
 package com.crafters.DataService.services.Impl;
 
+import com.crafters.DataService.dtos.ItemTotalByItemNameResponse;
 import com.crafters.DataService.dtos.ItemTotalRequestDTO;
 import com.crafters.DataService.dtos.ItemTotalResponseDTO;
 import com.crafters.DataService.entities.Attribute;
@@ -26,6 +27,7 @@ public class ItemTotalServiceImpl implements ItemTotalService {
         this.userService = userService;
     }
 
+    @Override
     public ItemTotalResponseDTO createItemTotal(String userId, ItemTotalRequestDTO itemTotalRequestDTO) {
         //TODO check if user present or not
         List<String> itemIds = itemTotalRequestDTO.getItemIds();
@@ -74,5 +76,18 @@ public class ItemTotalServiceImpl implements ItemTotalService {
         Set<String> referenceKeys = items.get(0).getYearValue().keySet();
         return items.stream()
                 .allMatch(item -> item.getYearValue().keySet().equals(referenceKeys));
+    }
+    @Override
+    public ItemTotalByItemNameResponse getTotalValueByItemNameAndUserId(String userId,String itemName){
+        List<ItemTotal> itemTotalList=itemTotalRepository.findByItemsIn(itemRepository.findByUser_IDAndName(userId,itemName));
+        
+        return ItemTotalByItemNameResponse.builder()
+        .collectionName(itemTotalList.get(0).getName())
+        .yearValue(itemTotalList.stream().flatMap(
+            itemTotal -> itemTotal.getYearTotalValue().entrySet().stream()
+            ).collect(
+                Collectors.toMap(
+                    Map.Entry::getKey, Map.Entry::getValue,Integer::sum
+                    ))).name(itemName).build();
     }
 }

@@ -1,5 +1,6 @@
 package com.crafters.DataService.services.Impl;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.stereotype.Component;
 
@@ -34,4 +35,11 @@ public class ItemServiceImpl implements ItemService {
         return new ItemResponse(item);
     }
     
+    public List<ItemResponse> getListOfItemsByFilterAndUserId(String userId,String filter,String filterValue){
+        return itemRepository.findByUserIdAndFilter(userId, filter, filterValue).stream().map(item -> new ItemResponse(item)).toList();
+    }
+
+    public List<ItemResponse> getListOfItemsByUserId(String userId){
+        return itemRepository.findAll(userId).stream().map(item -> new ItemResponse(item)).toList();
+    }
 }
