@@ -22,17 +22,10 @@ jobs:
         #  repository: Yashika1410/Prototype-Application
         #  token: ${{ secrets.PAT_TOKEN }}
 
-      - name: change dir
-        run: |
-          cd ./DataService
-          ls
-
       - name: Lint Code Base
         uses: github/super-linter@v4
         env:
           VALIDATE_ALL_CODEBASE: false
           VALIDATE_JAVA: true
-          DEFAULT_BRANCH: ${{ github.workspace }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          file-match: './*'
+          
