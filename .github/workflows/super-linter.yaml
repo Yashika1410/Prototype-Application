@@ -17,10 +17,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          # Full git history is needed to get a proper list of changed files within `super-linter`
-         repository: Yashika1410/Prototype-Application
-         token: ${{ secrets.PAT_TOKEN }}
+        # with:
+        #   # Full git history is needed to get a proper list of changed files within `super-linter`
+        #  repository: Yashika1410/Prototype-Application
+        #  token: ${{ secrets.PAT_TOKEN }}
 
       - name: change dir
         run: |
@@ -34,3 +34,5 @@ jobs:
           VALIDATE_JAVA: true
           DEFAULT_BRANCH: ${{ github.workspace }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          file-match: './*'
