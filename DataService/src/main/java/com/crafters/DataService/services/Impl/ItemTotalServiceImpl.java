@@ -38,7 +38,6 @@ public class ItemTotalServiceImpl implements ItemTotalService {
     }
 
     @Override
-
     public ItemTotalResponseDTO createItemTotal(String userId, ItemTotalRequestDTO itemTotalRequestDTO) {
 
         List<String> itemIds = itemTotalRequestDTO.getItemIds();
