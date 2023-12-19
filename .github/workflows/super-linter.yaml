@@ -28,5 +28,6 @@ jobs:
           VALIDATE_ALL_CODEBASE: false
           VALIDATE_JAVA: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BRANCH: master
         with:
           file-match: './DataService/*'
