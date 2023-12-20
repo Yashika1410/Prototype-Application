@@ -1,7 +1,9 @@
 package com.crafters.DataService.utils.Impl;
 
+import com.crafters.DataService.exceptions.JWTExpirationException;
 import com.crafters.DataService.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -71,11 +73,15 @@ public class JwtUtilsImpl implements JwtUtils {
     }
 
     private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+            return extractExpiration(token).before(new Date());
     }
 
     private Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+        try {
+            return extractClaim(token, Claims::getExpiration);
+        }catch (JwtException ex) {
+            throw new JWTExpirationException("Jwt token is expired");
+        }
     }
 
     private Claims extractAllClaims(String token) {
