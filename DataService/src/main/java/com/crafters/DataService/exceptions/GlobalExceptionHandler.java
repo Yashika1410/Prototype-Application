@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponseDTO, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(ExpiredJwtException.class)
+    @ExceptionHandler({JWTExpirationException.class, ExpiredJwtException.class})
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseEntity<ErrorResponseDTO> handleJWTExpired(Exception ex) {
         ErrorResponseDTO errorResponseDTO = ErrorResponseDTO.builder()

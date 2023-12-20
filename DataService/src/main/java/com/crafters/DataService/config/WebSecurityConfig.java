@@ -2,6 +2,7 @@ package com.crafters.DataService.config;
 
 import com.crafters.DataService.services.Impl.UserServiceImpl;
 import com.crafters.DataService.utils.JwtAuthenticationFilter;
+import jakarta.servlet.DispatcherType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
