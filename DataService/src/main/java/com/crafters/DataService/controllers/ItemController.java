@@ -33,7 +33,7 @@ public class ItemController {
     private AuthServiceImpl authService;
     private ItemServiceImpl itemService;
 
-  
+
     /**
      * Creates a new item.
      *
@@ -45,7 +45,7 @@ public class ItemController {
     @Operation(summary = "Create new Item",
   security = @SecurityRequirement(name = "bearerAuth"))
     public ItemResponse createItem(@RequestBody CreateItemRequestDTO createItemRequestDTO,Authentication authentication) {
-        return itemService.CreateNewItem(authService.getUserId(authentication), createItemRequestDTO);
+        return itemService.createNewItem(authService.getUserId(authentication), createItemRequestDTO);
     }
 
     /**
@@ -63,7 +63,7 @@ public class ItemController {
         return itemService.getListOfItemsByFilterAndUserId(authService.getUserId(authentication), filter, filterValue);
         return itemService.getListOfItemsByUserId(authService.getUserId(authentication));
     }
-    
+
 
     @GetMapping("/{itemId}")
     @Operation(summary = "Get Item By ID",
