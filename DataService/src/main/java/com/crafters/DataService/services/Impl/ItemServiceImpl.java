@@ -1,12 +1,14 @@
 package com.crafters.DataService.services.Impl;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.crafters.DataService.exceptions.EntityNotFoundException;
 import org.springframework.stereotype.Component;
 
 import com.crafters.DataService.dtos.CreateItemRequestDTO;
 import com.crafters.DataService.dtos.ItemResponse;
+import com.crafters.DataService.dtos.YearValueDTO;
 import com.crafters.DataService.entities.Item;
 import com.crafters.DataService.repositories.ItemRepository;
 import com.crafters.DataService.services.ItemService;
@@ -56,9 +58,34 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemResponse getItemById(String userId, String itemId) {
-        Item item = itemRepository.findByIdAndUser_Id(itemId, userId)
-                .orElseThrow(() -> new EntityNotFoundException("Item not found with id: " + itemId + " for user: " + userId));
-        return new ItemResponse(item);
+        return new ItemResponse(getItemByUserIdItemId(userId, itemId));
 
+    }
+    @Override
+    public ItemResponse updateItemByUserIdAndItemId(String userId, String itemId, CreateItemRequestDTO createItemRequestDTO) {
+        Item item = getItemByUserIdItemId(userId, itemId);
+        item.setAttributes(createItemRequestDTO.getAttributes().isEmpty()?item.getAttributes():createItemRequestDTO.getAttributes());
+        item.setCollectionName(createItemRequestDTO.getCollectionName().isEmpty()?item.getCollectionName():createItemRequestDTO.getCollectionName());
+        item.setName(createItemRequestDTO.getName().isEmpty()?item.getName():createItemRequestDTO.getName());
+        item.setYearValue(createItemRequestDTO.getYearValue().isEmpty()?item.getYearValue():createItemRequestDTO.getYearValue());
+        return new ItemResponse(itemRepository.save(item));
+    }
+
+    private Item getItemByUserIdItemId(String userId, String itemId) {
+        Item item = itemRepository.findByIdAndUser_Id(itemId, userId)
+                .orElseThrow(()-> new EntityNotFoundException( "Item not found by this "+itemId+" id"));
+        return item;
+    }
+
+    @Override
+    public ItemResponse addNewYearValuesToItemByUserIdAndItemId(String userId, String itemId,
+            List<YearValueDTO> listOfYearValues) {
+                Item item = getItemByUserIdItemId(userId, itemId);
+                Map<String,Integer> map = item.getYearValue();
+                listOfYearValues.forEach(yearValue->{
+                    map.put(yearValue.getYear(), yearValue.getValue());
+                });
+                item.setYearValue(map);
+        return new ItemResponse(itemRepository.save(item));
     }
 }

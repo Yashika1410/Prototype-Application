@@ -4,10 +4,10 @@ import java.util.List;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 import com.crafters.DataService.dtos.CreateItemRequestDTO;
 import com.crafters.DataService.dtos.ItemResponse;
+import com.crafters.DataService.dtos.YearValueDTO;
 import com.crafters.DataService.services.Impl.AuthServiceImpl;
 import com.crafters.DataService.services.Impl.ItemServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +19,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 /**
  * Controller class for handling item-related operations.
@@ -69,6 +72,20 @@ public class ItemController {
        
         ItemResponse itemResponse = itemService.getItemById(authService.getUserId(authentication), itemId);
         return ResponseEntity.ok(itemResponse);
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Update Item By ID",
+    security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<ItemResponse> updateItem(Authentication authentication,@PathVariable String id, @RequestBody CreateItemRequestDTO createItemRequestDTO) {
+        return ResponseEntity.ok(itemService.updateItemByUserIdAndItemId(authService.getUserId(authentication),id,createItemRequestDTO));
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Add new year value to Item By ID",
+    security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<ItemResponse> addNewYearValuesById(Authentication authentication,@PathVariable String id, @RequestBody List<YearValueDTO> listOfYearValues) {
+        return ResponseEntity.ok(itemService.addNewYearValuesToItemByUserIdAndItemId(authService.getUserId(authentication),id,listOfYearValues));
     }
 
 }
