@@ -10,6 +10,7 @@ import com.crafters.DataService.dtos.CreateItemRequestDTO;
 import com.crafters.DataService.dtos.ItemResponse;
 import com.crafters.DataService.dtos.YearValueDTO;
 import com.crafters.DataService.entities.Item;
+import com.crafters.DataService.entities.User;
 import com.crafters.DataService.repositories.ItemRepository;
 import com.crafters.DataService.services.ItemService;
 /**
@@ -140,5 +141,28 @@ public class ItemServiceImpl implements ItemService {
                 });
                 item.setYearValue(map);
         return new ItemResponse(itemRepository.save(item));
+    }
+
+    /**
+     * @param userId
+     * @param createItemRequestDTOs
+     * @return List
+     */
+    public List<ItemResponse> createListOfNewItems(
+            final String userId,
+            final List<CreateItemRequestDTO> createItemRequestDTOs) {
+                User user = userService.getUserById(userId);
+                List<Item> items = createItemRequestDTOs.stream().map(
+                    createItemRequestDTO -> Item.builder()
+                    .attributes(createItemRequestDTO.getAttributes())
+                    .collectionName(createItemRequestDTO.getCollectionName())
+                    .yearValue(createItemRequestDTO.getYearValue())
+                    .name(createItemRequestDTO.getName())
+                    .user(user)
+                    .createdAt(new Date(System.currentTimeMillis()))
+                    .updatedAt(new Date(System.currentTimeMillis()))
+                    .build()).toList();
+        return  itemRepository.saveAll(items)
+                .stream().map(item -> new ItemResponse(item)).toList();
     }
 }

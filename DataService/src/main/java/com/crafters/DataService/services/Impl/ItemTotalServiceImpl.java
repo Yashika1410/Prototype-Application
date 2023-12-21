@@ -3,34 +3,69 @@ package com.crafters.DataService.services.Impl;
 import com.crafters.DataService.dtos.ItemTotalByItemNameResponse;
 import com.crafters.DataService.dtos.ItemTotalRequestDTO;
 import com.crafters.DataService.dtos.ItemTotalResponseDTO;
+import com.crafters.DataService.dtos.YearValueDTO;
 import com.crafters.DataService.entities.Attribute;
 import com.crafters.DataService.entities.Item;
 import com.crafters.DataService.entities.ItemTotal;
+import com.crafters.DataService.exceptions.EntityNotFoundException;
 import com.crafters.DataService.repositories.ItemRepository;
 import com.crafters.DataService.repositories.ItemTotalRepository;
 import com.crafters.DataService.services.ItemTotalService;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class ItemTotalServiceImpl implements ItemTotalService {
+    /**
+     *
+     */
+    private static final int HUNDRED = 100;
+    /**
+     *
+     */
     private final ItemTotalRepository itemTotalRepository;
+    /**
+     *
+     */
     private final ItemRepository itemRepository;
+    /**
+     *
+     */
     private final UserServiceImpl userService;
 
 
-    public ItemTotalServiceImpl(ItemTotalRepository itemTotalRepository, ItemRepository itemRepository, UserServiceImpl userService) {
-        this.itemTotalRepository = itemTotalRepository;
-        this.itemRepository = itemRepository;
-        this.userService = userService;
+    /**
+     * @param itemTotalRepo
+     * @param itemRepo
+     * @param userSer
+     */
+    public ItemTotalServiceImpl(
+        final ItemTotalRepository itemTotalRepo,
+        final ItemRepository itemRepo,
+            final UserServiceImpl userSer) {
+        this.itemTotalRepository = itemTotalRepo;
+        this.itemRepository = itemRepo;
+        this.userService = userSer;
     }
 
-
-    public List<ItemTotalResponseDTO> getItems(String userId, String attributeName, String attributeValue){
+    /**
+     * @param userId
+     * @param attributeName
+     * @param attributeValue
+     * @return ItemTotals responses
+     */
+    public final List<ItemTotalResponseDTO> getItems(
+        final String userId, final String attributeName,
+            final String attributeValue) {
         if (attributeName != null && attributeValue != null) {
-          return getItemTotalsByAttribute(
+            return getItemTotalsByAttribute(
                     userId, attributeName, attributeValue);
         } else {
             return getAllItemTotal(userId);
@@ -38,7 +73,8 @@ public class ItemTotalServiceImpl implements ItemTotalService {
     }
 
     @Override
-    public ItemTotalResponseDTO createItemTotal(String userId, ItemTotalRequestDTO itemTotalRequestDTO) {
+    public final ItemTotalResponseDTO createItemTotal(final String userId,
+            final ItemTotalRequestDTO itemTotalRequestDTO) {
 
         List<String> itemIds = itemTotalRequestDTO.getItemIds();
         Attribute attribute = itemTotalRequestDTO.getAttribute();
@@ -47,7 +83,8 @@ public class ItemTotalServiceImpl implements ItemTotalService {
         }
         List<Item> items = itemRepository.findByUser_IdAndIdIn(userId, itemIds);
         List<Item> filteredItems = filterItemsByAttribute(items, attribute);
-        Map<String, Integer> yearSums = calculateYearSums(itemTotalRequestDTO.getYearTotalValue(), filteredItems);
+        Map<String, Integer> yearSums = calculateYearSums(
+                itemTotalRequestDTO.getYearTotalValue(), filteredItems);
 
         ItemTotal itemTotal = itemTotalRepository
                 .save(ItemTotal.builder()
@@ -64,17 +101,22 @@ public class ItemTotalServiceImpl implements ItemTotalService {
         return new ItemTotalResponseDTO(itemTotal);
     }
 
-    private List<Item> filterItemsByAttribute(List<Item> items, Attribute attribute) {
+    private List<Item> filterItemsByAttribute(
+        final List<Item> items, final Attribute attribute) {
         return items.stream()
-                .filter(item -> String.valueOf(item.getAttributes().get(attribute.getAttributeName()))
+                .filter(item -> String.valueOf(
+                    item.getAttributes().get(attribute.getAttributeName()))
                         .equalsIgnoreCase(attribute.getAttributeValue()))
                 .collect(Collectors.toList());
     }
 
-    private Map<String, Integer> calculateYearSums(Map<String, Integer> yearTotalValue, List<Item> filteredItems) {
+    private Map<String, Integer> calculateYearSums(
+        final Map<String, Integer> yearTotalValue,
+            final List<Item> filteredItems) {
         if (yearTotalValue.isEmpty()) {
             if (!allItemsHaveSameKeys(filteredItems)) {
-                throw new IllegalStateException("All attributes must be of the same type");
+                throw new IllegalStateException(
+                    "All attributes must be of the same type");
             }
 
             return filteredItems.stream()
@@ -82,26 +124,26 @@ public class ItemTotalServiceImpl implements ItemTotalService {
                     .collect(Collectors.toMap(
                             Map.Entry::getKey,
                             Map.Entry::getValue,
-                            Integer::sum
-                    ));
+                            Integer::sum));
         } else {
-            return yearTotalValue;
+                return yearTotalValue;
         }
 
     }
 
-    private boolean allItemsHaveSameKeys(List<Item> items) {
+    private boolean allItemsHaveSameKeys(final List<Item> items) {
         if (items.isEmpty()) {
             return true;
         }
         Set<String> referenceKeys = items.get(0).getYearValue().keySet();
         return items.stream()
-                .allMatch(item -> item.getYearValue().keySet().equals(referenceKeys));
+                .allMatch(
+                    item -> item.getYearValue().keySet().equals(referenceKeys));
     }
 
-
     @Override
-    public List<ItemTotalResponseDTO> getAllItemTotal(String userId) {
+    public final List<ItemTotalResponseDTO> getAllItemTotal(
+        final String userId) {
         List<ItemTotal> itemTotalsList = itemTotalRepository.findAll();
         return itemTotalsList.stream()
                 .map(ItemTotalResponseDTO::new)
@@ -109,21 +151,27 @@ public class ItemTotalServiceImpl implements ItemTotalService {
     }
 
     @Override
-    public List<ItemTotalResponseDTO> getItemTotalsByAttribute(String userId, String attributeName, String attributeValue) {
-        List<ItemTotal> itemTotalsList = itemTotalRepository.findByUser_Id(userId);
+    public final List<ItemTotalResponseDTO> getItemTotalsByAttribute(
+        final String userId, final String attributeName,
+        final String attributeValue) {
+        List<ItemTotal> itemTotalsList = itemTotalRepository.findByUser_Id(
+            userId);
         return itemTotalsList.stream()
                 .filter(itemTotal -> {
                     // Filter based on the specified attribute name and value
                     Attribute attribute = itemTotal.getAttribute();
-                    return attribute != null &&
-                            attributeName.equalsIgnoreCase(attribute.getAttributeName()) &&
-                            attributeValue.equalsIgnoreCase(attribute.getAttributeValue());
+                    return attribute != null
+                    && attributeName.equalsIgnoreCase(
+                        attribute.getAttributeName())
+                        && attributeValue.equalsIgnoreCase(
+                            attribute.getAttributeValue());
                 })
                 .map(ItemTotalResponseDTO::new)
                 .collect(Collectors.toList());
     }
 
-    private void createRelationWIthItems(List<Item> filteredItems, ItemTotal itemTotal) {
+    private void createRelationWIthItems(final List<Item> filteredItems,
+    final ItemTotal itemTotal) {
         for (Item item : filteredItems) {
             if (item.getItemTotals() == null) {
                 item.setItemTotals(new ArrayList<>());
@@ -132,20 +180,70 @@ public class ItemTotalServiceImpl implements ItemTotalService {
         }
         itemRepository.saveAll(filteredItems);
     }
-  
+
     @Override
-    public ItemTotalByItemNameResponse getTotalValueByItemNameAndUserId(String userId,String itemName){
-        List<ItemTotal> itemTotalList=itemTotalRepository.findByItemsIn(itemRepository.findByUser_IDAndName(userId,itemName));
-        
+    public final ItemTotalByItemNameResponse getTotalValueByItemNameAndUserId(
+        final String userId,
+        final String itemName) {
+        List<ItemTotal> itemTotalList = itemTotalRepository.findByItemsIn(
+            itemRepository.findByUser_IDAndName(userId, itemName));
         return ItemTotalByItemNameResponse.builder()
         .collectionName(itemTotalList.get(0).getName())
         .yearValue(itemTotalList.stream().flatMap(
             itemTotal -> itemTotal.getYearTotalValue().entrySet().stream()
             ).collect(
                 Collectors.toMap(
-                    Map.Entry::getKey, Map.Entry::getValue,Integer::sum
+                    Map.Entry::getKey, Map.Entry::getValue, Integer::sum
                     ))).name(itemName).build();
 
 
+    }
+
+    /**
+     * @param userId
+     * @param itemId
+     * @param yearValueDTOs
+     * @return ItemTotal
+     */
+    public ItemTotalResponseDTO addNewYearValuesById(
+        final String userId, final String itemId,
+        final List<YearValueDTO> yearValueDTOs) {
+        ItemTotal itemTotal = itemTotalRepository.findByIdAndUser_Id(
+            itemId, userId).orElseThrow(
+            () -> new EntityNotFoundException(
+                "Item total not found by this " + itemId + " id"));
+            Map<String, Long> ratioMap = new HashMap<>();
+        String year = itemTotal.getItems(
+        ).get(
+           (0)
+            ).getYearValue().keySet().iterator().next();
+        System.out.println(year);
+        itemTotal.getItems().forEach(i -> {
+            ratioMap.put(i.getId(), Long.valueOf(
+            i.getYearValue(
+            ).get(year) * HUNDRED / itemTotal.getYearTotalValue().get(year))
+        );
+
+    });
+        System.out.println(ratioMap.toString());
+        ratioMap.forEach((k, v) -> {
+            Item item = itemRepository.findById(k)
+            .orElseThrow(
+                () -> new EntityNotFoundException(
+                    "item not found by this Id: " + k));
+            Map<String, Integer> map = item.getYearValue();
+            yearValueDTOs.forEach(yearValue -> {
+                map.put(
+                    yearValue.getYear(), Math.round(
+                        v * yearValue.getValue()) / HUNDRED);
+            });
+            item.setYearValue(map);
+            itemRepository.save(item);
+        });
+        yearValueDTOs.forEach(yearValue -> {
+            itemTotal.getYearTotalValue(
+            ).put(yearValue.getYear(), yearValue.getValue());
+        });
+        return new ItemTotalResponseDTO(itemTotalRepository.save(itemTotal));
     }
 }

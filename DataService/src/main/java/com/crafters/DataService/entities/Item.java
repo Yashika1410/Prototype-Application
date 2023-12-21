@@ -1,6 +1,5 @@
 package com.crafters.DataService.entities;
 
-import com.mongodb.lang.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,17 +18,44 @@ import java.util.Map;
 @NoArgsConstructor
 @Builder
 public class Item {
+    /**
+     *
+     */
     @Id
     private String id;
+    /**
+     *
+     */
     private String name;
+    /**
+     *
+     */
     private String collectionName;
+    /**
+     *
+     */
     private Map<String, Object> attributes;
+    /**
+     *
+     */
     @DBRef
     private User user;
+    /**
+     *
+     */
     private Map<String, Integer> yearValue;
+    /**
+     *
+     */
     @DBRef
     private List<ItemTotal> itemTotals;
+    /**
+     *
+     */
     private Date createdAt;
+    /**
+     *
+     */
     private Date updatedAt;
 
 }

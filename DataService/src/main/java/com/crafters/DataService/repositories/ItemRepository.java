@@ -23,7 +23,7 @@ public interface ItemRepository extends MongoRepository<Item, String>{
      * @param userId The user ID for which to retrieve items.
      * @return A list of items associated with the specified user ID.
      */
-    @Query("{'userId:?0'}")
+    @Query("{'userId':?0}")
     List<Item> findAll(String userId);
 
     List<Item> findByUser_IdAndIdIn(String userId, List<String> itemIds);

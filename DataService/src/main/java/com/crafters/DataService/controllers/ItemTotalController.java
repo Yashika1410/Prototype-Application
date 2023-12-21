@@ -3,6 +3,7 @@ package com.crafters.DataService.controllers;
 import com.crafters.DataService.dtos.ItemTotalByItemNameResponse;
 import com.crafters.DataService.dtos.ItemTotalRequestDTO;
 import com.crafters.DataService.dtos.ItemTotalResponseDTO;
+import com.crafters.DataService.dtos.YearValueDTO;
 import com.crafters.DataService.services.Impl.AuthServiceImpl;
 import com.crafters.DataService.services.Impl.ItemTotalServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,10 +15,12 @@ import org.springframework.security.core.Authentication;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
@@ -44,7 +47,7 @@ public class ItemTotalController {
     @PostMapping("")
     @Operation(summary = "Create new Item Total",
             security = @SecurityRequirement(name = "bearerAuth"))
-    public ResponseEntity<ItemTotalResponseDTO> createItem(
+    public ResponseEntity<ItemTotalResponseDTO> createTotalItem(
         @RequestBody final ItemTotalRequestDTO itemTotalRequestDTO,
         final Authentication authentication) {
         return new ResponseEntity<>(
@@ -89,6 +92,21 @@ public class ItemTotalController {
         return itemTotalService.getTotalValueByItemNameAndUserId(
             authService.getUserId(authentication), itemName);
 
+    }
+
+    /**
+     * @param itemId
+     * @param yearValueDTOs
+     * @param authentication
+     * @return ItemTotalResponse
+     */
+    @PutMapping("add-new-year-value/{itemId}")
+    public final ResponseEntity<ItemTotalResponseDTO> addNewYearTotal(
+        @PathVariable final String itemId,
+        @RequestBody final List<YearValueDTO> yearValueDTOs,
+        final Authentication authentication) {
+        return ResponseEntity.ok(itemTotalService.addNewYearValuesById(
+            authService.getUserId(authentication), itemId, yearValueDTOs));
     }
 
 }
