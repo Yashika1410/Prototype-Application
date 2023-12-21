@@ -4,40 +4,71 @@ import axios from 'axios';
 import { HotTable } from '@handsontable/react';
 
 function Table() {
-  const initialData = [
-    ['Country', 'Gender', 'Age-Group', '2019', '2020'],
-    ['Country1', 'Male', '10-20', 10, 11],
-    ['Country1', 'Male', '10-20', 20, 11],
-    ['Country1', 'Male', '10-20', 30, 15],
-  ];
   const [data, setData] = useState();
   const [columnHeaders, setColumnHeaders] = useState();
   const fetchData = async () => {
-    let bearerToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ5YXNoaWthMUBnbWFpbC5jb20iLCJpYXQiOjE3MDMxNDkxMzksImV4cCI6MTcwMzE1MDU3OX0.HfIRc3eshyWtgYQASuCUIPbQuRPXB2uHOOGNwsjS8Qc";
+    
       try {
-        const response = await axios.get('http://localhost:8080/api/v1/items',{
+        await axios.get('/api/api/v1/itemTotals',{
           headers: {
-            'Authorization': `Bearer ${bearerToken}`,
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'application/json', // Adjust content type as needed
           },
-        }); // Replace with your API endpoint
-        const result = await response.json();
-        // setData(result);
-        console.log(result)
-        console.log(response.status)
+        }).then((data)=>{
+          let colData=[]
+          let keyList=new Set();
+          data.data.forEach((itemTotal)=>{
+            let dict={}
+            let res=setItem(itemTotal["listOfItems"])
+            colData.push(...res[1])
+            keyList=[...res[0]]
+            dict[itemTotal['attribute']['attributeName']]=itemTotal['attribute']['attributeValue']
+            for(const key in itemTotal["totalValue"]){
+              dict[key]=itemTotal["totalValue"][key]
+            }
+            colData.push(dict)
+          }
+          )
+          setColumnHeaders(keyList)
+          setData(colData)
+          function setItem(datas) {
+            const keySet = new Set();
+          let columnData=[]
+
+            keySet.add("name");
+            keySet.add("collectionName");
+
+            datas.forEach((d, _) => {
+              let vDict = {};
+              // console.log(d["attributes"])
+              for (const key in d["attributes"]) {
+                vDict[key] = d["attributes"][key];
+                keySet.add(key);
+              }
+              for (const key in d["yearValue"]) {
+                vDict[key] = d["yearValue"][key];
+                keySet.add(key);
+              }
+              vDict["name"] = d["name"];
+              vDict["collectionName"] = d["collectionName"];
+              vDict["id"] = d["id"];
+              columnData.push(vDict);
+            });
+            let colHead = [];
+            keySet.forEach((v) => {
+              colHead.push({ data: v, title: v });
+            });
+            return [colHead,columnData];
+          }
+        }
+        )
       } catch (error) {
         console.error('Error fetching data:', error);
       }}
  useState(()=>{
   
-      fetchData()
-      setColumnHeaders([
-    'A',
-    'B',
-    'C',
-    'D',
-    'E',
-  ])
+      fetchData();
+
  },[]); // Initial column headers as letters A, B, C, ...
 
   const addColumn = () => {
@@ -59,8 +90,9 @@ function Table() {
       <button onClick={addRow}>Add Row</button>
       <HotTable
         data={data}
-        colHeaders={columnHeaders}
+        columns={columnHeaders}
         rowHeaders={true}
+        colHeaders={true}
         height="auto"
         licenseKey="non-commercial-and-evaluation"
       />
