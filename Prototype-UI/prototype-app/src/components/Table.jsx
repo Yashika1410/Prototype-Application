@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { HotTable } from '@handsontable/react';
+import { fetchDataFromAPI } from '../services/Table-service';
 
 function Table() {
     const hot = useRef(null);
@@ -38,6 +39,42 @@ function Table() {
         setColumns(keyList);
         setData(colData);
     };
+
+    const setItem = (datas) => {
+        const keySet = new Set();
+        let columnData = [];
+
+        keySet.add("name");
+        keySet.add("collectionName");
+
+        datas.forEach((d, _) => {
+            let vDict = {};
+
+            for (const key in d["attributes"]) {
+                vDict[key] = d["attributes"][key];
+                keySet.add(key);
+            }
+
+            for (const key in d["yearValue"]) {
+                vDict[key] = d["yearValue"][key];
+                keySet.add(key);
+            }
+
+            vDict["name"] = d["name"];
+            vDict["collectionName"] = d["collectionName"];
+            vDict["id"] = d["id"];
+            columnData.push(vDict);
+        });
+
+        let colHead = [];
+
+        keySet.forEach((v) => {
+            colHead.push({ data: v, title: v });
+        });
+
+        return [colHead, columnData];
+    };
+
 
     useState(() => {
 
