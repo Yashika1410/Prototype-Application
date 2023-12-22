@@ -1,9 +1,9 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
-import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useRef } from 'react';
 import { HotTable } from '@handsontable/react';
 import { fetchDataFromAPI } from '../services/Table-service';
+import { mergeDataWithHeaders } from '../utils/TableUtils';
 
 function Table() {
     const hot = useRef(null);
@@ -77,10 +77,8 @@ function Table() {
 
 
     useState(() => {
-
         fetchData();
-
-    }, []);
+    }, [fetchData]);
 
     const addColumn = () => {
         let columnName;
@@ -151,32 +149,6 @@ function Table() {
         }
     };
 
-    function mergeDataWithHeaders(headers, selectedData) {
-        const result = {
-            rowType: 'simple',
-            data: {
-                name: headers.find(column => column.category === 'collectionName').label,
-                collectionName: selectedData[0],
-                attributes: {},
-                yearValue: {}
-            }
-        };
-
-        headers.forEach((column, index) => {
-            if (index > 0) {
-                const columnName = column.label;
-                const category = column.category;
-
-                if (category === 'attribute') {
-                    result.data.attributes[columnName] = selectedData[index];
-                } else if (category === 'yearvalue') {
-                    result.data.yearValue[columnName] = parseInt(selectedData[index]);
-                }
-            }
-        });
-
-        return result;
-    }
 
     const handleCustomAction = (key, options) => {
         const selectedRange = Array.isArray(options) && options.length > 0 ? options[0] : null;

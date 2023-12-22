@@ -268,6 +268,24 @@ public class ItemTotalServiceImpl implements ItemTotalService {
         return new ItemTotalResponseDTO(itemTotalRepository.save(itemTotal));
     }
 
+    public String deleteItemTotalById(String itemTotalId, String userId) {
+        ItemTotal itemTotal = itemTotalRepository.findByIdAndUser_Id(itemTotalId, userId).orElseThrow(() -> {
+            throw new EntityNotFoundException("ItemTotal Not found by given ID");
+        });
+        itemTotal.getItems().stream().forEach((item) -> {
+            deleteItemTotalFromItem(item, itemTotalId);
+        });
+        itemTotalRepository.deleteById(itemTotalId);
+        return "itemTotal Deleted";
+    }
+
+    public void deleteItemTotalFromItem(Item item, String itemTotalId) {
+        List<ItemTotal> itemTotals = item.getItemTotals();
+        item.setItemTotals(itemTotals.stream().filter(itemTotal -> !itemTotal.getId().equals(itemTotalId))
+                .collect(Collectors.toList()));
+        itemRepository.save(item);
+    }
+
     public String deleteItemByIdFromItemTotal(String itemTotalId, String itemId) {
 
         ItemTotal itemTotal = itemTotalRepository.findById(itemTotalId)
