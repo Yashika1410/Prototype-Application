@@ -4,9 +4,10 @@ import { } from '../utils/TableUtils';
 export const createItems = async (data) => {
     try {
         const authToken = localStorage.getItem('token');
-        const response = await axios.post('/api/api/v1/items/batch', { data }, {
+        const response = await axios.post('/api/api/v1/items', data, {
             headers: {
                 Authorization: `Bearer ${authToken}`,
+                'Content-Type': 'application/json', // Set the content type to JSON
             },
         });
         console.log('API Response:', response.data);

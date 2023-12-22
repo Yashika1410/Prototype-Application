@@ -2,8 +2,8 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useRef, useEffect } from 'react';
 import { HotTable } from '@handsontable/react';
-import { mergeDataWithHeaders, getListOfSimpleRowsForSubTotal } from '../utils/TableUtils';
-import { fetchDataFromAPI,deleteItem } from '../services/Table-service';
+import { mergeDataWithHeaders, getListOfSimpleRowsForSubTotal, createItemJSON } from '../utils/TableUtils';
+import { fetchDataFromAPI, deleteItem, createItems } from '../services/Table-service';
 
 
 function Table() {
@@ -78,13 +78,15 @@ function Table() {
     const addRow = (isTotalRow = false) => {
         const newRow = columns.map(() => '');
         const newRowData = { data: newRow, rowType: isTotalRow ? 'total' : 'simple' };
-        setData(prevData => [...prevData, newRowData]);
+        setObjectData(prevData => [...prevData, newRowData])
+        setData(prevData => [...prevData, newRow]);
     };
 
     const handleAfterChange = (changes, source) => {
         if (source === 'edit') {
             const [row, prop, oldValue, newValue] = changes[0];
             console.log(newValue);
+
             setData((prevData) => {
                 prevData[row][prop] = newValue;
                 console.log('prop', prop);
@@ -181,18 +183,32 @@ function Table() {
                 if (selectedRange && selectedRange.start && selectedRange.start.row !== null) {
                     const selectedRow = selectedRange.start.row;
                     const selectedData = hot.current.hotInstance.getSourceDataAtRow(selectedRow);
-                    const itemId = 
-                    objectData[selectedRow].id;
-                    deleteItem(itemId,objectData[selectedRow].rowType);
+                    const itemId = objectData[selectedRow].id;
+                    deleteItem(itemId, objectData[selectedRow].rowType);
+                    setData((prevData) => prevData.filter((row, index) => index !== selectedRow));
+                    if (data.length === 0) setObjectData([]);
+                    setObjectData((prevObjectData) => prevObjectData.filter((row, index) => index !== selectedRow));
                 }
             },
         },
     ];
+    const handleSave = () => {
+        const filteredObjectData = objectData.filter(item => data.some(row => row.id === item.id));
+        for (let i = 0; i < filteredObjectData.length; i++) {
+            const firstDataRow = filteredObjectData[0].data;
+            const mergedData = createItemJSON(columns, firstDataRow, filteredObjectData[0]);
+            createItems(JSON.stringify(mergedData));
+        }
+    };
+
+
+
 
     return (
         <div>
             <button onClick={addColumn}>Add Column</button>
             <button onClick={() => addRow()}>Add Row</button>
+            <button onClick={handleSave}>Save Data</button>
             <HotTable
                 ref={hot}
                 data={data}

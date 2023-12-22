@@ -1,5 +1,4 @@
 export function mergeDataWithHeaders(headers, selectedData, presentRow) {
-    console.log('presentRow',presentRow);
     const result = {
         rowType: presentRow.rowType,
         id: presentRow.data.id ? presentRow.data.id : '',
@@ -26,6 +25,32 @@ export function mergeDataWithHeaders(headers, selectedData, presentRow) {
 
     return result;
 }
+
+export function createItemJSON(headers, selectedData, presentRow) {
+    const result = {
+        rowType: presentRow.rowType,
+        name: headers.find(column => column.category === 'collectionName').label,
+        collectionName: selectedData[0],
+        attributes: {},
+        yearValue: {}
+    };
+
+    headers.forEach((column, index) => {
+        if (index > 0) {
+            const columnName = column.label;
+            const category = column.category;
+
+            if (category === 'attribute') {
+                result.attributes[columnName] = selectedData[index];
+            } else if (category === 'yearvalue') {
+                result.yearValue[columnName] = parseInt(selectedData[index]);
+            }
+        }
+    });
+
+    return result;
+}
+
 export const getListOfSimpleRowsForSubTotal = (data) => {
     const simpleRowsData = [];
 
