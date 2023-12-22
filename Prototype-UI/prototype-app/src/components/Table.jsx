@@ -102,9 +102,6 @@ function Table() {
             }
         }
 
-        // Determine the index to insert the new column
-        // const insertIndex = category === 'attribute' ? 1 : columns.length;
-
         setColumns(prevColumns => [
             ...prevColumns.slice(0, insertIndex),
             { label: columnName, category },
