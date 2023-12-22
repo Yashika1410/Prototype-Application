@@ -11,70 +11,40 @@ function Table() {
     const fetchData = async () => {
 
         try {
-            await axios.get('/api/api/v1/itemTotals', {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json', // Adjust content type as needed
-                },
-            }).then((data) => {
-                let colData = []
-                let keyList = new Set();
-                data.data.forEach((itemTotal) => {
-                    let dict = {}
-                    let res = setItem(itemTotal["listOfItems"])
-                    colData.push(...res[1])
-                    keyList = [...res[0]]
-                    dict[itemTotal['attribute']['attributeName']] = itemTotal['attribute']['attributeValue']
-                    for (const key in itemTotal["totalValue"]) {
-                        dict[key] = itemTotal["totalValue"][key]
-                    }
-                    colData.push(dict)
-                }
-                )
-                setColumns(keyList)
-                setData(colData)
-                function setItem(datas) {
-                    const keySet = new Set();
-                    let columnData = []
-
-                    keySet.add("name");
-                    keySet.add("collectionName");
-
-                    datas.forEach((d, _) => {
-                        let vDict = {};
-                        // console.log(d["attributes"])
-                        for (const key in d["attributes"]) {
-                            vDict[key] = d["attributes"][key];
-                            keySet.add(key);
-                        }
-                        for (const key in d["yearValue"]) {
-                            vDict[key] = d["yearValue"][key];
-                            keySet.add(key);
-                        }
-                        vDict["name"] = d["name"];
-                        vDict["collectionName"] = d["collectionName"];
-                        vDict["id"] = d["id"];
-                        columnData.push(vDict);
-                    });
-                    let colHead = [];
-                    keySet.forEach((v) => {
-                        colHead.push({ data: v, title: v });
-                    });
-                    return [colHead, columnData];
-                }
-            }
-            )
+            const fetchedData = await fetchDataFromAPI();
+            processFetchedData(fetchedData);
         } catch (error) {
-            console.error('Error fetching data:', error);
+            console.error('Error processing fetched data:', error);
         }
-    }
+    };
+
+    const processFetchedData = (fetchedData) => {
+        let colData = [];
+        let keyList = new Set();
+
+        fetchedData.forEach((itemTotal) => {
+            let dict = {};
+            let res = setItem(itemTotal["listOfItems"]);
+            colData.push(...res[1]);
+            keyList = [...res[0]];
+            dict[itemTotal['attribute']['attributeName']] = itemTotal['attribute']['attributeValue'];
+
+            for (const key in itemTotal["totalValue"]) {
+                dict[key] = itemTotal["totalValue"][key];
+            }
+
+            colData.push(dict);
+        });
+
+        setColumns(keyList);
+        setData(colData);
+    };
+
     useState(() => {
 
         fetchData();
 
-    }, []); // Initial column headers as letters A, B, C, ...
-
-
+    }, []);
 
 
     const addColumn = () => {
@@ -130,9 +100,7 @@ function Table() {
         if (source === 'edit') {
             const [row, prop, oldValue, newValue] = changes[0];
 
-            // Check if the changed cell is in the last column
             if (prop === columns[columns.length - 1].label) {
-                // Save the data without adding a new row for total rows
                 const currentRow = data[row];
                 if (currentRow.rowType === 'simple') {
                     localStorage.setItem('tableData', JSON.stringify(data));
