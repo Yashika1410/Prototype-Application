@@ -44,23 +44,24 @@ function Table() {
     };
 
     const setItem = (datas) => {
-        const keySet = new Set();
+        const atttributeKeySet = new Set();
+        const yearValueKeySet = new Set();
         let columnData = [];
-
-        keySet.add("name");
-        keySet.add("collectionName");
+        let colHead = [];
+        colHead.push({data: "name",title:"name" , label:"name",category:"collectionName"});
+        colHead.push({data: "collectionName",title:"collectionName",  label:"collectionName",category:"collectionName"});
 
         datas.forEach((d, _) => {
             let vDict = {};
 
             for (const key in d["attributes"]) {
                 vDict[key] = d["attributes"][key];
-                keySet.add(key);
+                atttributeKeySet.add(key);
             }
 
             for (const key in d["yearValue"]) {
                 vDict[key] = d["yearValue"][key];
-                keySet.add(key);
+                yearValueKeySet.add(key);
             }
 
             vDict["name"] = d["name"];
@@ -69,11 +70,13 @@ function Table() {
             columnData.push(vDict);
         });
 
-        let colHead = [];
-
-        keySet.forEach((v) => {
-            colHead.push({ data: v, title: v });
-        });
+        
+        atttributeKeySet.forEach((atK)=>{
+            colHead.push({data:atK,title:atK,label:atK, category:'attribute'})
+        })
+        yearValueKeySet.forEach((yV)=>{
+            colHead.push({data: yV,title:yV,label:yV,category:'yearvalue'})
+        })
 
         return [colHead, columnData];
     };
@@ -105,23 +108,23 @@ function Table() {
                 return;
             }
         }
-
+        const insertIndex = category === 'attribute' ? 1 : columns.length;
         setColumns(prevColumns => [
             ...prevColumns.slice(0, insertIndex),
-            { label: columnName, category },
+            {data: columnName,title:columnName,label: columnName, category },
             ...prevColumns.slice(insertIndex),
         ]);
 
-        setData(prevData =>
-            prevData.map(row => ({
-                ...row,
-                data: [
-                    ...row.data.slice(0, insertIndex),
-                    '',
-                    ...row.data.slice(insertIndex),
-                ],
-            }))
-        );
+        // setData(prevData =>
+        //     prevData.map(row => ({
+        //         ...row,
+        //         data: [
+        //             ...row.data.slice(0, insertIndex),
+        //             '',
+        //             ...row.data.slice(insertIndex),
+        //         ],
+        //     }))
+        // );
     };
 
     const addRow = (isTotalRow = false) => {
