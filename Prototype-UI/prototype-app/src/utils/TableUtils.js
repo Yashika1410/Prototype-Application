@@ -24,3 +24,22 @@ export function mergeDataWithHeaders(headers, selectedData) {
 
     return result;
 }
+export const getListOfSimpleRowsForSubTotal = (data) => {
+    const simpleRowsData = [];
+
+    for (let i = data.length - 2; i >= 0; i--) {
+        const currentRow = data[i];
+        if (currentRow.rowType === 'total') {
+            break;
+        } else if (currentRow.rowType === 'simple') {
+            simpleRowsData.unshift(currentRow.data);
+        }
+    }
+    console.log(simpleRowsData);
+    return simpleRowsData;
+};
+
+
+
+
+

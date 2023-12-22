@@ -1,94 +1,32 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { HotTable } from '@handsontable/react';
-
-import { deleteItem } from '../services/Table-service';
+import { mergeDataWithHeaders, getListOfSimpleRowsForSubTotal } from '../utils/TableUtils';
 import { fetchDataFromAPI } from '../services/Table-service';
-import { mergeDataWithHeaders } from '../utils/TableUtils';
 
 function Table() {
     const hot = useRef(null);
-    const [data, setData] = useState();
+    const [data, setData] = useState([]);
     const [columns, setColumns] = useState(() => {
         const storedColumns = localStorage.getItem('tableColumns');
         return storedColumns ? JSON.parse(storedColumns) : [];
     });
-    const fetchData = async () => {
+    
+    useEffect(() => {
+        localStorage.setItem('tableColumns', JSON.stringify(columns));
 
-        try {
-            const fetchedData = await fetchDataFromAPI();
-            processFetchedData(fetchedData);
-        } catch (error) {
-            console.error('Error processing fetched data:', error);
-        }
-    };
-
-    const processFetchedData = (fetchedData) => {
-        let colData = [];
-        let keyList = new Set();
-
-        fetchedData.forEach((itemTotal) => {
-            let dict = {};
-            let res = setItem(itemTotal["listOfItems"]);
-            colData.push(...res[1]);
-            keyList = [...res[0]];
-            dict[itemTotal['attribute']['attributeName']] = itemTotal['attribute']['attributeValue'];
-
-            for (const key in itemTotal["totalValue"]) {
-                dict[key] = itemTotal["totalValue"][key];
+        const fetchData = async () => {
+            try {
+                const fetchedData = await fetchDataFromAPI(columns);
+                setData(fetchedData); // Assuming the API returns the data directly
+            } catch (error) {
+                console.error('Error fetching data:', error);
             }
+        };
 
-            colData.push(dict);
-        });
-
-        setColumns(keyList);
-        setData(colData);
-    };
-
-    const setItem = (datas) => {
-        const atttributeKeySet = new Set();
-        const yearValueKeySet = new Set();
-        let columnData = [];
-        let colHead = [];
-        colHead.push({data: "name",title:"name" , label:"name",category:"collectionName"});
-        colHead.push({data: "collectionName",title:"collectionName",  label:"collectionName",category:"collectionName"});
-
-        datas.forEach((d, _) => {
-            let vDict = {};
-
-            for (const key in d["attributes"]) {
-                vDict[key] = d["attributes"][key];
-                atttributeKeySet.add(key);
-            }
-
-            for (const key in d["yearValue"]) {
-                vDict[key] = d["yearValue"][key];
-                yearValueKeySet.add(key);
-            }
-
-            vDict["name"] = d["name"];
-            vDict["collectionName"] = d["collectionName"];
-            vDict["id"] = d["id"];
-            columnData.push(vDict);
-        });
-
-        
-        atttributeKeySet.forEach((atK)=>{
-            colHead.push({data:atK,title:atK,label:atK, category:'attribute'})
-        })
-        yearValueKeySet.forEach((yV)=>{
-            colHead.push({data: yV,title:yV,label:yV,category:'yearvalue'})
-        })
-
-        return [colHead, columnData];
-    };
-
-
-    useState(() => {
         fetchData();
-    }, [fetchData]);
-
+    }, [columns]);
 
     const addColumn = () => {
         let columnName;
@@ -97,6 +35,7 @@ function Table() {
         if (columns.length === 0) {
             columnName = prompt('Enter name for the first column:');
             category = 'collectionName';
+            addRow();
         } else {
             const categoryInput = prompt('Enter category for the new column: (a for attribute, y for yearValue)').toLowerCase();
 
@@ -111,10 +50,13 @@ function Table() {
                 return;
             }
         }
+
+        // Determine the index to insert the new column
         const insertIndex = category === 'attribute' ? 1 : columns.length;
+
         setColumns(prevColumns => [
             ...prevColumns.slice(0, insertIndex),
-            {data: columnName,title:columnName,label: columnName, category },
+            { label: columnName, category },
             ...prevColumns.slice(insertIndex),
         ]);
 
@@ -142,9 +84,7 @@ function Table() {
 
             if (prop === columns[columns.length - 1].label) {
                 const currentRow = data[row];
-                if (currentRow.rowType === 'simple') {
-                    localStorage.setItem('tableData', JSON.stringify(data));
-                }
+
                 return;
             }
 
@@ -156,15 +96,14 @@ function Table() {
         }
     };
 
-
     const handleCustomAction = (key, options) => {
         const selectedRange = Array.isArray(options) && options.length > 0 ? options[0] : null;
 
         if (selectedRange && selectedRange.start && selectedRange.start.row !== null) {
             const selectedRow = selectedRange.start.row;
             const selectedData = hot.current.hotInstance.getSourceDataAtRow(selectedRow);
-
-            const mergedData = mergeDataWithHeaders(columns, selectedData);
+            console.log('selectedData', selectedData);
+            const mergedData = mergeDataWithHeaders(columns, selectedData, selectedRow);
             console.log('Merged Data:', mergedData);
         } else {
             console.error('Invalid options:', options);
@@ -185,9 +124,12 @@ function Table() {
 
             setData(updatedData => {
                 const updatedRow = updatedData[selectedRow];
-                localStorage.setItem('tableData', JSON.stringify(updatedData));
+
+                const relevantData = updatedData.slice(0, selectedRow + 1);
+                getListOfSimpleRowsForSubTotal(relevantData);
                 return updatedData;
             });
+
         }
 
     };
@@ -210,7 +152,7 @@ function Table() {
 
                     // Using the callback form of setData to ensure the state has been updated
                     setData(updatedData => {
-                        localStorage.setItem('tableData', JSON.stringify(updatedData));
+
                         return updatedData; // Return the updated data to set it in the state
                     });
                 }
@@ -231,21 +173,6 @@ function Table() {
             name: 'Create Total-Row',
             callback: createRowAsTotal,
         },
-        {
-            key: 'custom_action_3',
-            name: 'Delete Item',
-            callback: (key, options) => {
-                const selectedRange = Array.isArray(options) && options.length > 0 ? options[0] : null;
-
-                if (selectedRange && selectedRange.start && selectedRange.start.row !== null) {
-                    const selectedRow = selectedRange.start.row;
-                    const selectedData = hot.current.hotInstance.getSourceDataAtRow(selectedRow);
-                    const itemId = selectedData.id;
-                    deleteItem(itemId);
-                    fetchData();
-                }
-            },
-        },
     ];
 
     return (
@@ -255,8 +182,8 @@ function Table() {
             <HotTable
                 ref={hot}
                 data={data}
-                colHeaders={true}
-                columns={columns}
+                //data={data.map(row => row.data)}
+                colHeaders={columns.map(column => column.label)}
                 rowHeaders={true}
                 height="auto"
                 licenseKey="non-commercial-and-evaluation"
