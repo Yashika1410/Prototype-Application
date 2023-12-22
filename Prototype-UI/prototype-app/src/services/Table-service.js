@@ -14,3 +14,21 @@ export const createItem = async (data) => {
     }
 };
 
+export const deleteItem = async (itemId) => {
+    try {
+        await axios.delete(`/api/api/v1/items/${itemId}`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        
+    } catch (error) {
+        console.error('Error deleting item:', error);
+    }
+};
+
+
+
+
+

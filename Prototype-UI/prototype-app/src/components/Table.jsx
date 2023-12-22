@@ -3,75 +3,79 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { HotTable } from '@handsontable/react';
-
+import { deleteItem } from '../services/Table-service';
 function Table() {
     const hot = useRef(null);
     const [data, setData] = useState();
-  const [columns, setColumns] = useState();
-  const fetchData = async () => {
-    
-      try {
-        await axios.get('/api/api/v1/itemTotals',{
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json', // Adjust content type as needed
-          },
-        }).then((data)=>{
-          let colData=[]
-          let keyList=new Set();
-          data.data.forEach((itemTotal)=>{
-            let dict={}
-            let res=setItem(itemTotal["listOfItems"])
-            colData.push(...res[1])
-            keyList=[...res[0]]
-            dict[itemTotal['attribute']['attributeName']]=itemTotal['attribute']['attributeValue']
-            for(const key in itemTotal["totalValue"]){
-              dict[key]=itemTotal["totalValue"][key]
+    const [columns, setColumns] = useState();
+    const fetchData = async () => {
+
+        try {
+            await axios.get('/api/api/v1/itemTotals', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json', // Adjust content type as needed
+                },
+            }).then((data) => {
+                let colData = []
+                let keyList = new Set();
+                data.data.forEach((itemTotal) => {
+                    let dict = {}
+                    let res = setItem(itemTotal["listOfItems"])
+                    colData.push(...res[1])
+                    keyList = [...res[0]]
+                    dict[itemTotal['attribute']['attributeName']] = itemTotal['attribute']['attributeValue']
+                    for (const key in itemTotal["totalValue"]) {
+                        dict[key] = itemTotal["totalValue"][key]
+                    }
+                    colData.push(dict)
+                }
+                )
+                setColumns(keyList)
+                setData(colData)
+                function setItem(datas) {
+                    const keySet = new Set();
+                    let columnData = []
+
+                    keySet.add("name");
+                    keySet.add("collectionName");
+
+                    datas.forEach((d, _) => {
+                        let vDict = {};
+                        // console.log(d["attributes"])
+                        for (const key in d["attributes"]) {
+                            vDict[key] = d["attributes"][key];
+                            keySet.add(key);
+                        }
+                        for (const key in d["yearValue"]) {
+                            vDict[key] = d["yearValue"][key];
+                            keySet.add(key);
+                        }
+                        vDict["name"] = d["name"];
+                        vDict["collectionName"] = d["collectionName"];
+                        vDict["id"] = d["id"];
+                        columnData.push(vDict);
+                    });
+                    let colHead = [];
+                    keySet.forEach((v) => {
+                        colHead.push({ data: v, title: v });
+                    });
+                    return [colHead, columnData];
+                }
             }
-            colData.push(dict)
-          }
-          )
-          setColumns(keyList)
-          setData(colData)
-          function setItem(datas) {
-            const keySet = new Set();
-          let columnData=[]
-
-            keySet.add("name");
-            keySet.add("collectionName");
-
-            datas.forEach((d, _) => {
-              let vDict = {};
-              // console.log(d["attributes"])
-              for (const key in d["attributes"]) {
-                vDict[key] = d["attributes"][key];
-                keySet.add(key);
-              }
-              for (const key in d["yearValue"]) {
-                vDict[key] = d["yearValue"][key];
-                keySet.add(key);
-              }
-              vDict["name"] = d["name"];
-              vDict["collectionName"] = d["collectionName"];
-              vDict["id"] = d["id"];
-              columnData.push(vDict);
-            });
-            let colHead = [];
-            keySet.forEach((v) => {
-              colHead.push({ data: v, title: v });
-            });
-            return [colHead,columnData];
-          }
+            )
+        } catch (error) {
+            console.error('Error fetching data:', error);
         }
-        )
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }}
- useState(()=>{
-  
-      fetchData();
+    }
+    useState(() => {
 
- },[]); // Initial column headers as letters A, B, C, ...
+        fetchData();
+
+    }, []); // Initial column headers as letters A, B, C, ...
+
+
+
 
     const addColumn = () => {
         let columnName;
@@ -244,6 +248,21 @@ function Table() {
             key: 'custom_action_2',
             name: 'Create Total-Row',
             callback: createRowAsTotal,
+        },
+        {
+            key: 'custom_action_3',
+            name: 'Delete Item',
+            callback: (key, options) => {
+                const selectedRange = Array.isArray(options) && options.length > 0 ? options[0] : null;
+
+                if (selectedRange && selectedRange.start && selectedRange.start.row !== null) {
+                    const selectedRow = selectedRange.start.row;
+                    const selectedData = hot.current.hotInstance.getSourceDataAtRow(selectedRow);
+                    const itemId = selectedData.id;
+                    deleteItem(itemId);
+                    fetchData();
+                }
+            },
         },
     ];
 
