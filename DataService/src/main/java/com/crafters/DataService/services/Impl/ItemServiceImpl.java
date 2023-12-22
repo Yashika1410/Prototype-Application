@@ -91,11 +91,13 @@ public class ItemServiceImpl implements ItemService {
     public String deleteItemById(String id, String userId) {
         Item itemToDelete = itemRepository.findByIdAndUser_Id(id, userId)
                 .orElseThrow(() -> new EntityNotFoundException("Item with given ID and user ID not found"));
+
         List<ItemTotal> itemTotals = itemToDelete.getItemTotals();
         for (ItemTotal itemTotal : itemTotals) {
-            itemTotalService.deleteItemByIdFromItemTotal(itemTotal.getId(), itemToDelete.getId());
+            itemTotalService.updateAndDeleteItem(itemTotal, itemToDelete.getId());
         }
         itemRepository.deleteById(id);
+
         return "Item deleted";
     }
 

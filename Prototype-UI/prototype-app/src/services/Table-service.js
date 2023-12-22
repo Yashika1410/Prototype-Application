@@ -14,3 +14,18 @@ export const createItem = async (data) => {
     }
 };
 
+export const fetchDataFromAPI = async () => {
+  try {
+    const response = await axios.get('/api/api/v1/itemTotals', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw error;
+  }
+};
