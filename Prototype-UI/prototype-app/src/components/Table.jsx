@@ -12,7 +12,7 @@ function Table() {
         const storedColumns = localStorage.getItem('tableColumns');
         return storedColumns ? JSON.parse(storedColumns) : [];
     });
-    
+
     useEffect(() => {
         localStorage.setItem('tableColumns', JSON.stringify(columns));
 
@@ -81,17 +81,11 @@ function Table() {
     const handleAfterChange = (changes, source) => {
         if (source === 'edit') {
             const [row, prop, oldValue, newValue] = changes[0];
-
-            if (prop === columns[columns.length - 1].label) {
-                const currentRow = data[row];
-
-                return;
-            }
-
-            setData(prevData => {
-                const newData = [...prevData];
-                newData[row].data[prop] = newValue;
-                return newData;
+            console.log(newValue);
+            setData((prevData) => {
+                prevData[row][prop] = newValue;
+                console.log(prevData);
+                return prevData;
             });
         }
     };
@@ -182,7 +176,7 @@ function Table() {
             <HotTable
                 ref={hot}
                 data={data}
-                //data={data.map(row => row.data)}
+                //data={data.map(row => row.data.rowData)}
                 colHeaders={columns.map(column => column.label)}
                 rowHeaders={true}
                 height="auto"
