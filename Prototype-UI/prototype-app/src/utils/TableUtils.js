@@ -1,6 +1,8 @@
-export function mergeDataWithHeaders(headers, selectedData) {
+export function mergeDataWithHeaders(headers, selectedData, presentRow) {
+    console.log('presentRow',presentRow);
     const result = {
-        rowType: 'simple',
+        rowType: presentRow.rowType,
+        id: presentRow.data.id ? presentRow.data.id : '',
         data: {
             name: headers.find(column => column.category === 'collectionName').label,
             collectionName: selectedData[0],

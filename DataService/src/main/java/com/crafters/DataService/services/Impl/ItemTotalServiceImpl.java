@@ -269,6 +269,8 @@ public class ItemTotalServiceImpl implements ItemTotalService {
     }
 
     public String deleteItemTotalById(String itemTotalId, String userId) {
+        System.out.println("id------------------------------------------"+itemTotalId);
+        System.out.println("userId------------------------------------------"+userId);
         ItemTotal itemTotal = itemTotalRepository.findByIdAndUser_Id(itemTotalId, userId).orElseThrow(() -> {
             throw new EntityNotFoundException("ItemTotal Not found by given ID");
         });

@@ -3,10 +3,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { HotTable } from '@handsontable/react';
 import { mergeDataWithHeaders, getListOfSimpleRowsForSubTotal } from '../utils/TableUtils';
-import { fetchDataFromAPI } from '../services/Table-service';
+import { fetchDataFromAPI,deleteItem } from '../services/Table-service';
+
 
 function Table() {
     const hot = useRef(null);
+    const [objectData, setObjectData] = useState([]);
     const [data, setData] = useState([]);
     const [columns, setColumns] = useState(() => {
         const storedColumns = localStorage.getItem('tableColumns');
@@ -19,7 +21,8 @@ function Table() {
         const fetchData = async () => {
             try {
                 const fetchedData = await fetchDataFromAPI(columns);
-                setData(fetchedData); // Assuming the API returns the data directly
+                setObjectData(fetchedData);
+                setData(fetchedData.map(row => row.data.rowData))
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
@@ -84,9 +87,11 @@ function Table() {
             console.log(newValue);
             setData((prevData) => {
                 prevData[row][prop] = newValue;
-                console.log(prevData);
+                console.log('prop', prop);
+                console.log('prevData', prevData[row]);
                 return prevData;
             });
+
         }
     };
 
@@ -97,7 +102,7 @@ function Table() {
             const selectedRow = selectedRange.start.row;
             const selectedData = hot.current.hotInstance.getSourceDataAtRow(selectedRow);
             console.log('selectedData', selectedData);
-            const mergedData = mergeDataWithHeaders(columns, selectedData, selectedRow);
+            const mergedData = mergeDataWithHeaders(columns, selectedData, objectData[selectedRow]);
             console.log('Merged Data:', mergedData);
         } else {
             console.error('Invalid options:', options);
@@ -166,6 +171,21 @@ function Table() {
             key: 'custom_action_2',
             name: 'Create Total-Row',
             callback: createRowAsTotal,
+        },
+        {
+            key: 'custom_action_3',
+            name: 'Delete Item',
+            callback: (key, options) => {
+                const selectedRange = Array.isArray(options) && options.length > 0 ? options[0] : null;
+
+                if (selectedRange && selectedRange.start && selectedRange.start.row !== null) {
+                    const selectedRow = selectedRange.start.row;
+                    const selectedData = hot.current.hotInstance.getSourceDataAtRow(selectedRow);
+                    const itemId = 
+                    objectData[selectedRow].id;
+                    deleteItem(itemId,objectData[selectedRow].rowType);
+                }
+            },
         },
     ];
 
