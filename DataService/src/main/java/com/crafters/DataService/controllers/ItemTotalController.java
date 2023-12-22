@@ -12,17 +12,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
-
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-
 
 
 @RestController
@@ -48,11 +40,11 @@ public class ItemTotalController {
     @Operation(summary = "Create new Item Total",
             security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<ItemTotalResponseDTO> createTotalItem(
-        @RequestBody final ItemTotalRequestDTO itemTotalRequestDTO,
-        final Authentication authentication) {
+            @RequestBody final ItemTotalRequestDTO itemTotalRequestDTO,
+            final Authentication authentication) {
         return new ResponseEntity<>(
                 itemTotalService.createItemTotal(
-                    authService.getUserId(authentication), itemTotalRequestDTO),
+                        authService.getUserId(authentication), itemTotalRequestDTO),
                 HttpStatus.CREATED);
     }
 
@@ -64,8 +56,8 @@ public class ItemTotalController {
      */
     @GetMapping("")
     @Operation(
-        summary = "List of Itemtotal on basis of attributes name and values",
-        security = @SecurityRequirement(name = "bearerAuth"))
+            summary = "List of Itemtotal on basis of attributes name and values",
+            security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<List<ItemTotalResponseDTO>> getAllItemTotals(
             @RequestParam(required = false) final String attributeName,
             @RequestParam(required = false) final String attributeValue,
@@ -73,8 +65,8 @@ public class ItemTotalController {
 
         return new ResponseEntity<>(
                 itemTotalService.getItems(
-                    authService.getUserId(authentication),
-                    attributeName, attributeValue),
+                        authService.getUserId(authentication),
+                        attributeName, attributeValue),
                 HttpStatus.OK);
     }
 
@@ -85,12 +77,23 @@ public class ItemTotalController {
      */
     @GetMapping("/{itemName}")
     @Operation(summary = "Get Total by item Name",
-    security = @SecurityRequirement(name = "bearerAuth"))
+            security = @SecurityRequirement(name = "bearerAuth"))
     public ItemTotalByItemNameResponse getTotalByItemName(
-        final Authentication authentication,
-        @RequestParam final String itemName) {
+            final Authentication authentication,
+            @RequestParam final String itemName) {
         return itemTotalService.getTotalValueByItemNameAndUserId(
-            authService.getUserId(authentication), itemName);
+                authService.getUserId(authentication), itemName);
+
+    }
+
+    @DeleteMapping("/{itemTotalId}")
+    @Operation(summary = "Delete Total by itemTotal id",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<String> deleteItemTotalById(
+            final Authentication authentication,
+            @PathVariable final String itemTotalId) {
+        return new ResponseEntity<String>(itemTotalService.deleteItemTotalById(itemTotalId,
+                authService.getUserId(authentication)), HttpStatus.NO_CONTENT);
 
     }
 
@@ -102,11 +105,11 @@ public class ItemTotalController {
      */
     @PutMapping("add-new-year-value/{itemId}")
     public final ResponseEntity<ItemTotalResponseDTO> addNewYearTotal(
-        @PathVariable final String itemId,
-        @RequestBody final List<YearValueDTO> yearValueDTOs,
-        final Authentication authentication) {
+            @PathVariable final String itemId,
+            @RequestBody final List<YearValueDTO> yearValueDTOs,
+            final Authentication authentication) {
         return ResponseEntity.ok(itemTotalService.addNewYearValuesById(
-            authService.getUserId(authentication), itemId, yearValueDTOs));
+                authService.getUserId(authentication), itemId, yearValueDTOs));
     }
 
 }

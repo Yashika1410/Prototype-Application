@@ -31,8 +31,8 @@ public class ItemServiceImpl implements ItemService {
      *
      */
     private final UserServiceImpl userService;
-
     private final ItemTotalServiceImpl itemTotalService;
+
 
     /**
      * @param itemRepo
