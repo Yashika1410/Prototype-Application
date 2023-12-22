@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { HotTable } from '@handsontable/react';
 import { deleteItem } from '../services/Table-service';
+import { fetchDataFromAPI } from '../services/Table-service';
 function Table() {
     const hot = useRef(null);
     const [data, setData] = useState();
