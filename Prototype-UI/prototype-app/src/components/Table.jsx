@@ -10,7 +10,10 @@ import { mergeDataWithHeaders } from '../utils/TableUtils';
 function Table() {
     const hot = useRef(null);
     const [data, setData] = useState();
-    const [columns, setColumns] = useState();
+    const [columns, setColumns] = useState(() => {
+        const storedColumns = localStorage.getItem('tableColumns');
+        return storedColumns ? JSON.parse(storedColumns) : [];
+    });
     const fetchData = async () => {
 
         try {

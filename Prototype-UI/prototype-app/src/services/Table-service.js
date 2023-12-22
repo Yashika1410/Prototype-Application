@@ -41,7 +41,7 @@ export const fetchDataFromAPI = async () => {
         'Content-Type': 'application/json',
       },
     });
-
+    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error('Error fetching data:', error);
