@@ -2,6 +2,8 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useRef } from 'react';
 import { HotTable } from '@handsontable/react';
+
+import { deleteItem } from '../services/Table-service';
 import { fetchDataFromAPI } from '../services/Table-service';
 import { mergeDataWithHeaders } from '../utils/TableUtils';
 
@@ -10,6 +12,7 @@ function Table() {
     const [data, setData] = useState();
     const [columns, setColumns] = useState();
     const fetchData = async () => {
+
         try {
             const fetchedData = await fetchDataFromAPI();
             processFetchedData(fetchedData);
@@ -79,6 +82,7 @@ function Table() {
     useState(() => {
         fetchData();
     }, [fetchData]);
+
 
     const addColumn = () => {
         let columnName;
@@ -220,6 +224,21 @@ function Table() {
             key: 'custom_action_2',
             name: 'Create Total-Row',
             callback: createRowAsTotal,
+        },
+        {
+            key: 'custom_action_3',
+            name: 'Delete Item',
+            callback: (key, options) => {
+                const selectedRange = Array.isArray(options) && options.length > 0 ? options[0] : null;
+
+                if (selectedRange && selectedRange.start && selectedRange.start.row !== null) {
+                    const selectedRow = selectedRange.start.row;
+                    const selectedData = hot.current.hotInstance.getSourceDataAtRow(selectedRow);
+                    const itemId = selectedData.id;
+                    deleteItem(itemId);
+                    fetchData();
+                }
+            },
         },
     ];
 
