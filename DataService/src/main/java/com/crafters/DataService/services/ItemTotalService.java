@@ -15,4 +15,6 @@ public interface ItemTotalService {
 
     ItemTotalByItemNameResponse getTotalValueByItemNameAndUserId(String userId, String itemName);
 
+    String deleteItemByIdFromItemTotal(String itemTotalId, String itemId);
+
 }
