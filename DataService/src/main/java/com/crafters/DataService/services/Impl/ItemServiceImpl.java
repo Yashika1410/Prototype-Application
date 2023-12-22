@@ -68,6 +68,7 @@ public class ItemServiceImpl implements ItemService {
                         .attributes(createItemRequestDTO.getAttributes())
                         .createdAt(new Date(System.currentTimeMillis()))
                         .updatedAt(new Date(System.currentTimeMillis()))
+                        .rowType(createItemRequestDTO.getRowType())
                         .build());
         return new ItemResponse(item);
     }
@@ -178,6 +179,7 @@ public class ItemServiceImpl implements ItemService {
                         .collectionName(createItemRequestDTO.getCollectionName())
                         .yearValue(createItemRequestDTO.getYearValue())
                         .name(createItemRequestDTO.getName())
+                        .rowType(createItemRequestDTO.getRowType())
                         .user(user)
                         .createdAt(new Date(System.currentTimeMillis()))
                         .updatedAt(new Date(System.currentTimeMillis()))

@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CreateItemRequestDTO {
     private String name;
+    private String rowType;
     private String collectionName;
     private Map<String,Object> attributes;
     private Map<String, Integer> yearValue;

@@ -15,6 +15,7 @@ import java.util.Map;
 public class ItemResponse {
     private String id;
     private String name;
+    private String rowType;
     private String collectionName;
     private Map<String, Object> attributes;
     private Map<String, Integer> yearValue;
@@ -25,5 +26,6 @@ public class ItemResponse {
         this.collectionName = item.getCollectionName();
         this.attributes = item.getAttributes();
         this.yearValue = item.getYearValue();
+        this.rowType = item.getRowType();
     }
 }
