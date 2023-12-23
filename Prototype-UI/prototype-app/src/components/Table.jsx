@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { HotTable } from '@handsontable/react';
 
 import { mergeDataWithHeaders, getListOfSimpleRowsForSubTotal } from '../utils/TableUtils';
-import { fetchDataFromAPI, deleteItem, createBatchItems } from '../services/Table-service';
+import { fetchDataFromAPI, deleteItem, createBatchItems, updateBatchItems } from '../services/Table-service';
 import './Table.css'
 
 
@@ -147,7 +147,7 @@ function Table() {
             }
             return '';
         });
-        grandTotal[0]="GRAND TOTAL";
+        grandTotal[0] = "GRAND TOTAL";
         return grandTotal;
     };
 
@@ -257,7 +257,14 @@ function Table() {
         //console.log('updated Data ', updatedSimpleObjectData);
         const createdSimpleData = updatedSimpleObjectData.filter(item => item.id === '');
         const updatedSimpleData = updatedSimpleObjectData.filter(item => item.id !== '');
-        createBatchItems(createdSimpleData.map(({ id, ...rest }) => rest));
+        console.log(updatedSimpleData);
+        console.log(objectData);
+        if (createdSimpleData) {
+            createBatchItems(createdSimpleData.map(({ id, ...rest }) => rest));
+        }
+        if (updatedSimpleData) {
+            updateBatchItems(updatedSimpleData);
+        }
     };
 
     return (

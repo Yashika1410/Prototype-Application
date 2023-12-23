@@ -17,6 +17,21 @@ export const createBatchItems = async (data) => {
     }
 };
 
+export const updateBatchItems = async (data) => {
+    try {
+        const authToken = localStorage.getItem('token');
+        const response = await axios.put('/api/api/v1/items/batch', data, {
+            headers: {
+                Authorization: `Bearer ${authToken}`,
+                'Content-Type': 'application/json', // Set the content type to JSON
+            },
+        });
+        console.log('API Response:', response.data);
+    } catch (error) {
+        console.error('API Error:', error);
+    }
+};
+
 
 export const deleteItem = async (itemId, rowType) => {
     console.log('itemId', itemId);
