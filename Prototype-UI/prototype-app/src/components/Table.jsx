@@ -50,6 +50,9 @@ function Table() {
             } else if (categoryInput === 'y') {
                 columnName = prompt('Enter name for the new yearValue column:');
                 category = 'yearvalue';
+            } else if (categoryInput === 's') { // Step 2
+                setSubtotalCategory(prompt('Enter category for subtotal: (a for attribute, c for collectionName)').toLowerCase());
+                return; // Skip adding a new column for subtotal category
             } else {
                 alert('Invalid category. Please enter "a" for attribute or "y" for yearValue.');
                 return;
@@ -269,13 +272,28 @@ function Table() {
         }
     };
 
+    const handleSubtotalClick = () => {
+        const subtotalFor = prompt('Enter subtotal for what values: (a for attribute, c for collectionName)').toLowerCase(); // Step 3
+
+        if (subtotalFor === 'a') {
+            // Calculate subtotal for attributes (you can implement this based on your data structure)
+            // Example: const subtotalResult = calculateSubtotalForAttributes(objectData, columns);
+        } else if (subtotalFor === 'c') {
+            // Calculate subtotal for collectionName (you can implement this based on your data structure)
+            // Example: const subtotalResult = calculateSubtotalForCollectionName(objectData, columns);
+        } else {
+            alert('Invalid choice. Please enter "a" for attribute or "c" for collectionName.');
+        }
+    };
+
     return (
         <div>
             <button className="actionButton" onClick={addColumn}>Add Column</button>
             <button className="actionButton" onClick={() => addRow()}>Add Row</button>
             <button className="saveButton" onClick={handleSave}>Save Data</button>
-            <button className="grandTotalButton" onClick={handleGrandTotalClick}>Grand Total</button><hr />
-
+            <button className="grandTotalButton" onClick={handleGrandTotalClick}>Grand Total</button>
+            <button className="actionButton" onClick={handleSubtotalClick}>Sub Total</button> <hr />
+            
             <HotTable
                 ref={hot}
                 data={data}
