@@ -66,6 +66,20 @@ export const getListOfSimpleRowsForSubTotal = (data) => {
     return simpleRowsData;
 };
 
+export function applyCellSettings(hotInstance, row) {
+    console.log(row);
+    hotInstance.updateSettings({
+        cells(row, col) {
+            const cellProperties = {};
+        
+            if (hotInstance.getData()[row][col] === 'Country 1') {
+              cellProperties.readOnly = true;
+            }
+        
+            return cellProperties;
+          }
+    });
+}
 
 
 

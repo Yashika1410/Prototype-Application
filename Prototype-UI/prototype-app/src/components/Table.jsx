@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { HotTable } from '@handsontable/react';
 
-import { mergeDataWithHeaders, getListOfSimpleRowsForSubTotal } from '../utils/TableUtils';
+import { mergeDataWithHeaders, getListOfSimpleRowsForSubTotal, applyCellSettings } from '../utils/TableUtils';
 import { fetchDataFromAPI, deleteItem, createBatchItems, updateBatchItems, fetchDataFromBackend } from '../services/Table-service';
 import './Table.css'
 
@@ -30,8 +30,8 @@ function Table() {
                 console.error('Error fetching data:', error);
             }
         };
-
         fetchData();
+
     }, [columns]);
 
     const addColumn = () => {
@@ -71,7 +71,6 @@ function Table() {
 
 
     };
-
     const addRow = (isTotalRow = false, grandTotalData) => {
         if (isTotalRow) {
             setData(prevData => [...prevData, grandTotalData]);
@@ -305,6 +304,14 @@ function Table() {
                 licenseKey="non-commercial-and-evaluation"
                 contextMenu={customContextMenu}
                 afterChange={handleAfterChange}
+                cells={(row, col, prop) => {
+                    const isTotalRow = objectData[row] && objectData[row].rowType === 'total';
+                    const isEmptyOrUndefined = data[row][col] === '' || data[row][col] === undefined;
+
+                    return {
+                        readOnly: isTotalRow && isEmptyOrUndefined,
+                    };
+                }}
             />
         </div>
     );
