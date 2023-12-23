@@ -110,7 +110,7 @@ public class ItemTotalServiceImpl implements ItemTotalService {
         }
     }
 
-    private final Map<String, Integer> calculateYearSumsOfItems(List<Item> items) {
+    public final Map<String, Integer> calculateYearSumsOfItems(List<Item> items) {
         if (!allItemsHaveSameKeys(items)) {
             throw new IllegalStateException(
                     "All attributes must be of the same type");
@@ -270,8 +270,8 @@ public class ItemTotalServiceImpl implements ItemTotalService {
     }
 
     public String deleteItemTotalById(String itemTotalId, String userId) {
-        System.out.println("id------------------------------------------"+itemTotalId);
-        System.out.println("userId------------------------------------------"+userId);
+        System.out.println("id------------------------------------------" + itemTotalId);
+        System.out.println("userId------------------------------------------" + userId);
         ItemTotal itemTotal = itemTotalRepository.findByIdAndUser_Id(itemTotalId, userId).orElseThrow(() -> {
             throw new EntityNotFoundException("ItemTotal Not found by given ID");
         });

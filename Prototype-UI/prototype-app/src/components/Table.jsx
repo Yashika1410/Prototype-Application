@@ -189,25 +189,25 @@ function Table() {
                 }
             },
         },
-        {
-            key: 'remove_row',
-            name: 'Remove Row',
-            callback: (key, options) => {
-                const selectedRange = Array.isArray(options) && options.length > 0 ? options[0] : null;
+        // {
+        //     key: 'remove_row',
+        //     name: 'Remove Row',
+        //     callback: (key, options) => {
+        //         const selectedRange = Array.isArray(options) && options.length > 0 ? options[0] : null;
 
-                if (selectedRange && selectedRange.start && selectedRange.start.row !== null) {
-                    const selectedRow = selectedRange.start.row;
+        //         if (selectedRange && selectedRange.start && selectedRange.start.row !== null) {
+        //             const selectedRow = selectedRange.start.row;
 
-                    setData(prevData =>
-                        prevData.filter((row, index) => index !== selectedRow)
-                    );
+        //             setData(prevData =>
+        //                 prevData.filter((row, index) => index !== selectedRow)
+        //             );
 
-                    setData(updatedData => {
-                        return updatedData;
-                    });
-                }
-            },
-        },
+        //             setData(updatedData => {
+        //                 return updatedData;
+        //             });
+        //         }
+        //     },
+        // },
         '---------',
         'copy',
         'cut',

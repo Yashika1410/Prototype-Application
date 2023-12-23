@@ -10,6 +10,7 @@ import com.crafters.DataService.entities.User;
 import com.crafters.DataService.exceptions.EntityNotFoundException;
 import com.crafters.DataService.repositories.ItemRepository;
 import com.crafters.DataService.services.ItemService;
+import com.crafters.DataService.utils.UpdateItemTotalUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -34,19 +35,22 @@ public class ItemServiceImpl implements ItemService {
      */
     private final UserServiceImpl userService;
     private final ItemTotalServiceImpl itemTotalService;
+    private final UpdateItemTotalUtils updateItemTotalUtils;
 
 
     /**
      * @param itemRepo
      * @param userServiceImpl
      * @param itemTotalService
+     * @param updateItemTotalUtils
      */
     public ItemServiceImpl(
             final ItemRepository itemRepo,
-            final UserServiceImpl userServiceImpl, ItemTotalServiceImpl itemTotalService) {
+            final UserServiceImpl userServiceImpl, ItemTotalServiceImpl itemTotalService, UpdateItemTotalUtils updateItemTotalUtils) {
         this.userService = userServiceImpl;
         this.itemRepository = itemRepo;
         this.itemTotalService = itemTotalService;
+        this.updateItemTotalUtils = updateItemTotalUtils;
     }
 
     /**
@@ -196,11 +200,9 @@ public class ItemServiceImpl implements ItemService {
         List<ItemResponse> updatedItems = new ArrayList<>();
 
         for (UpdateItemRequestDTO updateItemRequestDTO : updateItemRequestDTOList) {
-            // Assuming there is a method to get the item by ID from the repository
             Item existingItem = itemRepository.findById(updateItemRequestDTO.getId())
                     .orElseThrow(() -> new EntityNotFoundException("Item not found"));
 
-            // Update the fields as needed
             existingItem.setName(updateItemRequestDTO.getName());
             existingItem.setYearValue(updateItemRequestDTO.getYearValue());
             existingItem.setCollectionName(updateItemRequestDTO.getCollectionName());
@@ -208,13 +210,11 @@ public class ItemServiceImpl implements ItemService {
             existingItem.setUpdatedAt(new Date(System.currentTimeMillis()));
             existingItem.setRowType(updateItemRequestDTO.getRowType());
 
-            // Save the updated item
             Item updatedItem = itemRepository.save(existingItem);
 
-            // Create and add the response for the updated item
             updatedItems.add(new ItemResponse(updatedItem));
         }
-
+        updateItemTotalUtils.updateItemTotalSums(userId);
         return updatedItems;
     }
 
