@@ -128,7 +128,6 @@ export const fetchDataFromAPI = async (headersVal) => {
                 'Content-Type': 'application/json',
             },
         });
-
         const transformedData = response.data.flatMap(itemTotal => {
             // Transform list of items
             const itemList = itemTotal.listOfItems.map(item => ({
@@ -180,7 +179,6 @@ export const fetchDataFromAPI = async (headersVal) => {
                     }
                 });
             });
-
             return combinedData;
         });
         return transformedData;
