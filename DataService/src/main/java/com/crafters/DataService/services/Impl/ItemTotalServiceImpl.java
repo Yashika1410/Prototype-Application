@@ -126,9 +126,11 @@ public class ItemTotalServiceImpl implements ItemTotalService {
     private List<Item> filterItemsByAttribute(
             final List<Item> items, final Attribute attribute) {
         return items.stream()
-                .filter(item -> String.valueOf(
-                                item.getAttributes().get(attribute.getAttributeName()))
-                        .equalsIgnoreCase(attribute.getAttributeValue()))
+                .filter(item ->
+                        (attribute.getAttributeName().equalsIgnoreCase(item.getName()) &&
+                                attribute.getAttributeValue().equalsIgnoreCase(item.getCollectionName())) ||
+                                String.valueOf(item.getAttributes().get(attribute.getAttributeName()))
+                                        .equalsIgnoreCase(attribute.getAttributeValue()))
                 .collect(Collectors.toList());
     }
 

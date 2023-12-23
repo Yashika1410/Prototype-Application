@@ -3,8 +3,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { HotTable } from '@handsontable/react';
 
-import { mergeDataWithHeaders, getListOfSimpleRowsForSubTotal, applyCellSettings } from '../utils/TableUtils';
-import { fetchDataFromAPI, deleteItem, createBatchItems, updateBatchItems, fetchDataFromBackend } from '../services/Table-service';
+import { mergeDataWithHeaders, getListOfSimpleRowsForSubTotal, handleSubtotalClick } from '../utils/TableUtils';
+import { deleteItem, createBatchItems, updateBatchItems, fetchDataFromBackend } from '../services/Table-service';
 import './Table.css'
 
 
@@ -272,19 +272,7 @@ function Table() {
         }
     };
 
-    const handleSubtotalClick = () => {
-        const subtotalFor = prompt('Enter subtotal for what values: (a for attribute, c for collectionName)').toLowerCase(); // Step 3
 
-        if (subtotalFor === 'a') {
-            // Calculate subtotal for attributes (you can implement this based on your data structure)
-            // Example: const subtotalResult = calculateSubtotalForAttributes(objectData, columns);
-        } else if (subtotalFor === 'c') {
-            // Calculate subtotal for collectionName (you can implement this based on your data structure)
-            // Example: const subtotalResult = calculateSubtotalForCollectionName(objectData, columns);
-        } else {
-            alert('Invalid choice. Please enter "a" for attribute or "c" for collectionName.');
-        }
-    };
 
     return (
         <div>
@@ -292,7 +280,7 @@ function Table() {
             <button className="actionButton" onClick={() => addRow()}>Add Row</button>
             <button className="saveButton" onClick={handleSave}>Save Data</button>
             <button className="grandTotalButton" onClick={handleGrandTotalClick}>Grand Total</button>
-            <button className="actionButton" onClick={handleSubtotalClick}>Sub Total</button> <hr />
+            <button className="actionButton" onClick={() => { handleSubtotalClick(objectData) }}>Sub Total</button> <hr />
 
             <HotTable
                 ref={hot}

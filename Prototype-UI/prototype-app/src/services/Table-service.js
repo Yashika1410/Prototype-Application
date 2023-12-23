@@ -17,6 +17,22 @@ export const createBatchItems = async (data) => {
     }
 };
 
+export const createItemTotal = async (data) => {
+    console.log(data);
+    try {
+        const authToken = localStorage.getItem('token');
+        const response = await axios.post('/api/api/v1/itemTotals', data, {
+            headers: {
+                Authorization: `Bearer ${authToken}`,
+                'Content-Type': 'application/json', // Set the content type to JSON
+            },
+        });
+        console.log('API Response:', response.data);
+    } catch (error) {
+        console.error('API Error:', error);
+    }
+};
+
 export const updateBatchItems = async (data) => {
     try {
         const authToken = localStorage.getItem('token');
@@ -146,7 +162,7 @@ export const fetchDataFromAPI = async (headersVal) => {
                 transformedItem.data.rowData = headersVal.map(header => {
                     if (transformedItem.rowType === 'total') {
                         if (header.category === 'collectionName') {
-                            return '';
+                            return transformedItem.data.attributes ? transformedItem.data.attributes[header.label] : '';
                         } else if (header.category === 'attribute') {
                             return transformedItem.data.attributes ? transformedItem.data.attributes[header.label] : '';
                         } else if (header.category === 'yearvalue') {

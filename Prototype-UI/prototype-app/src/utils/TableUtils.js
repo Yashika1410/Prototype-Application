@@ -1,3 +1,5 @@
+import { createItemTotal } from "../services/Table-service";
+
 export function mergeDataWithHeaders(headers, selectedData, presentRow) {
     const result = {
         rowType: presentRow.rowType,
@@ -54,32 +56,40 @@ export function createItemJSON(headers, selectedData, presentRow) {
 export const getListOfSimpleRowsForSubTotal = (data) => {
     const simpleRowsData = [];
 
-    for (let i = data.length - 2; i >= 0; i--) {
+    for (let i = data.length - 1; i >= 0; i--) {
         const currentRow = data[i];
         if (currentRow.rowType === 'total') {
             break;
         } else if (currentRow.rowType === 'simple') {
-            simpleRowsData.unshift(currentRow.data);
+            simpleRowsData.unshift(currentRow.id);
         }
     }
-    console.log(simpleRowsData);
     return simpleRowsData;
 };
 
-export function applyCellSettings(hotInstance, row) {
-    console.log(row);
-    hotInstance.updateSettings({
-        cells(row, col) {
-            const cellProperties = {};
-        
-            if (hotInstance.getData()[row][col] === 'Country 1') {
-              cellProperties.readOnly = true;
-            }
-        
-            return cellProperties;
-          }
-    });
-}
+export const handleSubtotalClick = (data) => {
+
+    const rowIndex = data.length + 1;
+    let attributeName = prompt(`For row ${rowIndex} Enter the name of the attribute:`);
+    if (!attributeName) return;
+    let attributeValue = prompt(`Enter the attribute value for "${attributeName}":`);
+    if (!attributeValue) return;
+    let subtotalHeading = prompt('Enter the title of the subtotal:');
+    if (!subtotalHeading) return
+    const itemTotal = {
+        name: subtotalHeading,
+        rowType: 'total',
+        attribute: {
+            attributeName,
+            attributeValue
+        },
+        itemIds: getListOfSimpleRowsForSubTotal(data),
+        yearTotalValue: {}
+    };
+
+    createItemTotal(itemTotal);
+};
+
 
 
 
