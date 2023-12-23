@@ -2,8 +2,10 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useRef, useEffect } from 'react';
 import { HotTable } from '@handsontable/react';
+
 import { mergeDataWithHeaders, getListOfSimpleRowsForSubTotal } from '../utils/TableUtils';
 import { fetchDataFromAPI, deleteItem, createBatchItems } from '../services/Table-service';
+import './Table.css'
 
 
 function Table() {
@@ -145,8 +147,7 @@ function Table() {
             }
             return '';
         });
-
-        grandTotal[0] = 'GRAND TOTAL'
+        grandTotal[0]="GRAND TOTAL";
         return grandTotal;
     };
 
@@ -261,10 +262,10 @@ function Table() {
 
     return (
         <div>
-            <button onClick={addColumn}>Add Column</button><br />
-            <button onClick={() => addRow()}>Add Row</button><br />
-            <button onClick={handleSave}>Save Data</button><br />
-            <button onClick={handleGrandTotalClick}>Grand Total</button><hr />
+            <button className="actionButton" onClick={addColumn}>Add Column</button>
+            <button className="actionButton" onClick={() => addRow()}>Add Row</button>
+            <button className="saveButton" onClick={handleSave}>Save Data</button>
+            <button className="grandTotalButton" onClick={handleGrandTotalClick}>Grand Total</button><hr />
 
             <HotTable
                 ref={hot}
