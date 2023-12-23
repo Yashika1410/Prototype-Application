@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { HotTable } from '@handsontable/react';
 
 import { mergeDataWithHeaders, getListOfSimpleRowsForSubTotal } from '../utils/TableUtils';
-import { fetchDataFromAPI, deleteItem, createBatchItems, updateBatchItems } from '../services/Table-service';
+import { fetchDataFromAPI, deleteItem, createBatchItems, updateBatchItems, fetchDataFromBackend } from '../services/Table-service';
 import './Table.css'
 
 
@@ -22,7 +22,8 @@ function Table() {
 
         const fetchData = async () => {
             try {
-                const fetchedData = await fetchDataFromAPI(columns);
+                const fetchedData = await fetchDataFromBackend(columns);
+                //const fetchedData = await fetchDataFromAPI(columns);
                 setObjectData(fetchedData);
                 setData(fetchedData.map(row => row.data.rowData))
             } catch (error) {
@@ -293,7 +294,7 @@ function Table() {
             <button className="saveButton" onClick={handleSave}>Save Data</button>
             <button className="grandTotalButton" onClick={handleGrandTotalClick}>Grand Total</button>
             <button className="actionButton" onClick={handleSubtotalClick}>Sub Total</button> <hr />
-            
+
             <HotTable
                 ref={hot}
                 data={data}

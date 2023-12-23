@@ -49,6 +49,60 @@ export const deleteItem = async (itemId, rowType) => {
         console.error('Error deleting item:', error);
     }
 };
+export const fetchDataFromBackend = async (columns) => {
+    const [itemsResponse, totalsResponse] = await Promise.all([
+        getItemsByFilter(true, 'itemTotals', 'empty'),
+        fetchDataFromAPI(columns)
+    ]);
+
+    let list = itemsResponse.map((inputItem) => {
+        return {
+            "rowType": inputItem.rowType,
+            "id": inputItem.id,
+            "data": {
+                "name": inputItem.name,
+                "collectionName": inputItem.collectionName,
+                "attributes": inputItem.attributes,
+                "yearValue": inputItem.yearValue,
+                rowData: []
+            }
+        };
+    })
+    list.forEach(transformedItem => {
+        transformedItem.data.rowData = columns.map(header => {
+            if (header.category === "collectionName") {
+                return transformedItem.data[header.category];
+            } else if (header.category === "attribute") {
+                return transformedItem.data.attributes ? transformedItem.data.attributes[header.label] : undefined;
+            } else if (header.category === "yearvalue") {
+                return transformedItem.data.yearValue ? transformedItem.data.yearValue[header.label] : 0;
+            }
+        });
+    });
+    const combinedData = [...totalsResponse, ...list];
+    return combinedData;
+};
+
+
+export const getItemsByFilter = async (filterFlag, filter, filterValue) => {
+    try {
+        const response = await axios.get('/api/api/v1/items', {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json',
+            },
+            params: {
+                filterFlag: filterFlag,
+                filter: filter,
+                value: filterValue,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching items:', error);
+        throw error;
+    }
+};
 
 export const fetchDataFromAPI = async (headersVal) => {
     try {
@@ -69,33 +123,28 @@ export const fetchDataFromAPI = async (headersVal) => {
                     collectionName: item.collectionName,
                     attributes: item.attributes,
                     yearValue: item.yearValue,
-                    rowData: [] // Add an empty array for rowData
+                    rowData: []
                 }
             }));
-
-            // Transform item total
             const itemTotalTransformed = {
                 id: itemTotal.id,
                 rowType: itemTotal.rowType,
                 data: {
                     name: itemTotal.name,
-                    collectionName: ' ', // Update this as needed
+                    collectionName: ' ',
                     attributes: {
-                        [itemTotal.attribute.attributeName]: itemTotal.attribute.attributeValue,
+                        [itemTotal.attribute.attributeName]: itemTotal.name,
                     },
                     yearTotal: itemTotal.totalValue,
-                    rowData: [] // Add an empty array for rowData
+                    rowData: []
                 }
             };
 
-            // Combine the transformed data for list of items and item total
             const combinedData = [...itemList, itemTotalTransformed];
 
-            // Map each item in the combinedData to add rowData based on headers
             combinedData.forEach(transformedItem => {
                 transformedItem.data.rowData = headersVal.map(header => {
                     if (transformedItem.rowType === 'total') {
-                        // Handle total row
                         if (header.category === 'collectionName') {
                             return '';
                         } else if (header.category === 'attribute') {
@@ -125,6 +174,7 @@ export const fetchDataFromAPI = async (headersVal) => {
         throw error;
     }
 };
+
 
 
 // export const fetchDataFromAPI = async (headersVal) => {

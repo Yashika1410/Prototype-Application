@@ -13,10 +13,7 @@ import com.crafters.DataService.services.ItemService;
 import com.crafters.DataService.utils.UpdateItemTotalUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Implementation of the {@link com.crafters.DataService.services.ItemService}
@@ -74,6 +71,7 @@ public class ItemServiceImpl implements ItemService {
                         .attributes(createItemRequestDTO.getAttributes())
                         .createdAt(new Date(System.currentTimeMillis()))
                         .updatedAt(new Date(System.currentTimeMillis()))
+                        .itemTotals(Collections.emptyList())
                         .rowType(createItemRequestDTO.getRowType())
                         .build());
         return new ItemResponse(item);
@@ -89,6 +87,11 @@ public class ItemServiceImpl implements ItemService {
     public final List<ItemResponse> getListOfItemsByFilterAndUserId(
             final String userId, final String filter,
             final String filterValue) {
+        if (filter.equalsIgnoreCase("itemTotals") && filterValue.equals("empty")) {
+            return itemRepository.findAll(userId).stream()
+                    .filter(item -> item.getItemTotals().isEmpty())
+                    .map(item -> new ItemResponse(item)).toList();
+        }
         return itemRepository.findByUserIdAndFilter(
                         userId, filter, filterValue).stream()
                 .map(item -> new ItemResponse(item)).toList();
@@ -186,7 +189,7 @@ public class ItemServiceImpl implements ItemService {
                         .yearValue(createItemRequestDTO.getYearValue())
                         .name(createItemRequestDTO.getName())
                         .rowType(createItemRequestDTO.getRowType())
-                        .user(user)
+                        .user(user).itemTotals(Collections.emptyList())
                         .createdAt(new Date(System.currentTimeMillis()))
                         .updatedAt(new Date(System.currentTimeMillis()))
                         .build()).toList();
