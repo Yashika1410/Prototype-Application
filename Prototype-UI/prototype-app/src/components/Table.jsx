@@ -63,25 +63,19 @@ function Table() {
             ...prevColumns.slice(insertIndex),
         ]);
 
-        // setData(prevData =>
-        //     prevData.map(row => ({
-        //         ...row,
-        //         data: [
-        //             ...row.data.slice(0, insertIndex),
-        //             '',
-        //             ...row.data.slice(insertIndex),
-        //         ],
-        //     }))
-        // );
+        
     };
 
-    const addRow = (isTotalRow = false) => {
+    const addRow = (isTotalRow = false, grandTotalData , grandTotalHeading = 'GrandTotal') => {
+        if (isTotalRow) {
+            setData(prevData => [...prevData, grandTotalData]);
+        } else {
         const newRow = columns.map(() => '');
         const newRowData = { data: newRow, rowType: isTotalRow ? 'total' : 'simple' };
         setObjectData(prevData => [...prevData, newRowData])
         setData(prevData => [...prevData, newRow]);
+        }
     };
-
     const handleAfterChange = (changes, source) => {
         if (source === 'edit') {
             const [row, prop, oldValue, newValue] = changes[0];
@@ -135,6 +129,55 @@ function Table() {
 
     };
 
+    const calculateGrandTotal = (data, columns) => {
+        console.log(data)
+        const grandTotal = columns.map(column => {
+            if (column.category === 'yearvalue') {
+                
+                const columnIndex = columns.indexOf(column);
+                console.log(`Column Index for ${column}: ${columnIndex}`);
+    
+                if (columnIndex >= 0) {
+                    const total = data.reduce((sum, row) => {
+                       
+                        if (Array.isArray(row) && row.length > columnIndex) {
+                            const value = Number(row[columnIndex]) || 0; 
+                            return sum + value;
+                        }
+                        return sum;
+                    }, 0);
+    
+                    console.log(`Sum for ${column}: ${total.toFixed(2)}`);
+                    return Number(total); 
+                }
+            }
+            return '';
+        });
+    
+        console.log('Grand Total:', grandTotal);
+        return grandTotal;
+    };
+    
+    const handleGrandTotalClick = () => {
+        if (Array.isArray(columns) && Array.isArray(objectData)) {
+            // Filter out objectData where row type is "simple"
+            const simpleRows = objectData.filter(row => row.rowType === 'simple');
+        console.log(simpleRows)
+            // Calculate grand total for filtered simple rows
+            const grandTotal = calculateGrandTotal(simpleRows.map(row=>row.data.rowData), columns);
+        
+            // Add the row with the calculated grand total
+            addRow(true, grandTotal, 'GrandTotal');
+        }
+         else {
+            console.error('Invalid columns or data structure. Unable to calculate grand total.');
+        }
+    };
+    
+    
+    
+    
+
     const customContextMenu = [
         'row_below',
         '---------',
@@ -151,10 +194,9 @@ function Table() {
                         prevData.filter((row, index) => index !== selectedRow)
                     );
 
-                    // Using the callback form of setData to ensure the state has been updated
                     setData(updatedData => {
 
-                        return updatedData; // Return the updated data to set it in the state
+                        return updatedData; 
                     });
                 }
             },
@@ -201,14 +243,13 @@ function Table() {
         }
     };
 
-
-
-
     return (
         <div>
-            <button onClick={addColumn}>Add Column</button>
-            <button onClick={() => addRow()}>Add Row</button>
-            <button onClick={handleSave}>Save Data</button>
+            <button onClick={addColumn}>Add Column</button><br />
+            <button onClick={() => addRow()}>Add Row</button><br />
+            <button onClick={handleSave}>Save Data</button><br />
+            <button onClick={handleGrandTotalClick}>Grand Total</button><hr />
+
             <HotTable
                 ref={hot}
                 data={data}
