@@ -17,6 +17,7 @@ import java.util.Map;
 public class ItemTotalResponseDTO {
     private String id;
     private String name;
+    private String rowType;
     private Attribute attribute;
     private List<ItemResponse> listOfItems;
     private Map<String, Integer> totalValue;
@@ -26,6 +27,7 @@ public class ItemTotalResponseDTO {
         this.name = itemTotal.getName();
         this.totalValue = itemTotal.getYearTotalValue();
         this.attribute = itemTotal.getAttribute();
+        this.rowType = itemTotal.getRowType();
         this.listOfItems = itemTotal.getItems().stream(
         ).map(ItemResponse::new).toList();
     }

@@ -1,13 +1,13 @@
 export function mergeDataWithHeaders(headers, selectedData, presentRow) {
     const result = {
         rowType: presentRow.rowType,
-        id: presentRow.data.id ? presentRow.data.id : '',
-        data: {
-            name: headers.find(column => column.category === 'collectionName').label,
-            collectionName: selectedData[0],
-            attributes: {},
-            yearValue: {}
-        }
+        id: presentRow.id ? presentRow.id : '',
+        // data: {
+        name: headers.find(column => column.category === 'collectionName').label,
+        collectionName: selectedData[0],
+        attributes: {},
+        yearValue: {}
+        // }
     };
 
     headers.forEach((column, index) => {
@@ -16,9 +16,9 @@ export function mergeDataWithHeaders(headers, selectedData, presentRow) {
             const category = column.category;
 
             if (category === 'attribute') {
-                result.data.attributes[columnName] = selectedData[index];
+                result.attributes[columnName] = selectedData[index];
             } else if (category === 'yearvalue') {
-                result.data.yearValue[columnName] = parseInt(selectedData[index]);
+                result.yearValue[columnName] = parseInt(selectedData[index]);
             }
         }
     });

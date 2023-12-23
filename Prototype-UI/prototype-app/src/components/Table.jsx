@@ -2,8 +2,8 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useRef, useEffect } from 'react';
 import { HotTable } from '@handsontable/react';
-import { mergeDataWithHeaders, getListOfSimpleRowsForSubTotal, createItemJSON } from '../utils/TableUtils';
-import { fetchDataFromAPI, deleteItem, createItems } from '../services/Table-service';
+import { mergeDataWithHeaders, getListOfSimpleRowsForSubTotal } from '../utils/TableUtils';
+import { fetchDataFromAPI, deleteItem, createBatchItems } from '../services/Table-service';
 
 
 function Table() {
@@ -63,28 +63,24 @@ function Table() {
             ...prevColumns.slice(insertIndex),
         ]);
 
-        
+
     };
 
-    const addRow = (isTotalRow = false, grandTotalData , grandTotalHeading = 'GrandTotal') => {
+    const addRow = (isTotalRow = false, grandTotalData) => {
         if (isTotalRow) {
             setData(prevData => [...prevData, grandTotalData]);
         } else {
-        const newRow = columns.map(() => '');
-        const newRowData = { data: newRow, rowType: isTotalRow ? 'total' : 'simple' };
-        setObjectData(prevData => [...prevData, newRowData])
-        setData(prevData => [...prevData, newRow]);
+            const newRow = columns.map(() => '');
+            const newRowData = { data: newRow, rowType: isTotalRow ? 'total' : 'simple' };
+            setObjectData(prevData => [...prevData, newRowData])
+            setData(prevData => [...prevData, newRow]);
         }
     };
     const handleAfterChange = (changes, source) => {
         if (source === 'edit') {
             const [row, prop, oldValue, newValue] = changes[0];
-            console.log(newValue);
-
             setData((prevData) => {
                 prevData[row][prop] = newValue;
-                console.log('prop', prop);
-                console.log('prevData', prevData[row]);
                 return prevData;
             });
 
@@ -130,57 +126,68 @@ function Table() {
     };
 
     const calculateGrandTotal = (data, columns) => {
-        console.log(data)
         const grandTotal = columns.map(column => {
             if (column.category === 'yearvalue') {
-                
+
                 const columnIndex = columns.indexOf(column);
-                console.log(`Column Index for ${column}: ${columnIndex}`);
-    
+
                 if (columnIndex >= 0) {
                     const total = data.reduce((sum, row) => {
-                       
+
                         if (Array.isArray(row) && row.length > columnIndex) {
-                            const value = Number(row[columnIndex]) || 0; 
+                            const value = Number(row[columnIndex]) || 0;
                             return sum + value;
                         }
                         return sum;
                     }, 0);
-    
-                    console.log(`Sum for ${column}: ${total.toFixed(2)}`);
-                    return Number(total); 
+                    return Number(total);
                 }
             }
             return '';
         });
-    
-        console.log('Grand Total:', grandTotal);
+
+        grandTotal[0] = 'GRAND TOTAL'
         return grandTotal;
     };
-    
+
     const handleGrandTotalClick = () => {
         if (Array.isArray(columns) && Array.isArray(objectData)) {
-            // Filter out objectData where row type is "simple"
             const simpleRows = objectData.filter(row => row.rowType === 'simple');
-        console.log(simpleRows)
-            // Calculate grand total for filtered simple rows
-            const grandTotal = calculateGrandTotal(simpleRows.map(row=>row.data.rowData), columns);
-        
-            // Add the row with the calculated grand total
-            addRow(true, grandTotal, 'GrandTotal');
+            const grandTotal = calculateGrandTotal(simpleRows.map(row => row.data.rowData), columns);
+            addRow(true, grandTotal);
         }
-         else {
+        else {
             console.error('Invalid columns or data structure. Unable to calculate grand total.');
         }
     };
-    
-    
-    
-    
+
 
     const customContextMenu = [
-        'row_below',
-        '---------',
+        {
+            key: 'row_below',
+            name: 'Insert Row Below',
+            callback: (key, options) => {
+                const selectedRange = Array.isArray(options) && options.length > 0 ? options[0] : null;
+
+                if (selectedRange && selectedRange.start && selectedRange.start.row !== null) {
+                    const selectedRow = selectedRange.start.row;
+
+                    setData((prevData) => {
+                        const newData = [...prevData];
+                        newData.splice(selectedRow + 1, 0, columns.map(() => '')); // Insert a new row
+                        return newData;
+                    });
+
+                    const newRow = columns.map(() => '');
+                    const newRowData = { data: newRow, rowType: 'simple' }; // Assuming it's always a simple row
+                    setObjectData((prevData) => {
+                        const newObjectData = [...prevData];
+                        newObjectData.splice(selectedRow + 1, 0, newRowData); // Insert a new row data object
+                        return newObjectData;
+                    });
+                }
+            },
+        },
         {
             key: 'remove_row',
             name: 'Remove Row',
@@ -195,8 +202,7 @@ function Table() {
                     );
 
                     setData(updatedData => {
-
-                        return updatedData; 
+                        return updatedData;
                     });
                 }
             },
@@ -235,12 +241,22 @@ function Table() {
         },
     ];
     const handleSave = () => {
-        const filteredObjectData = objectData.filter(item => data.some(row => row.id === item.id));
-        for (let i = 0; i < filteredObjectData.length; i++) {
-            const firstDataRow = filteredObjectData[0].data;
-            const mergedData = createItemJSON(columns, firstDataRow, filteredObjectData[0]);
-            createItems(JSON.stringify(mergedData));
+        let simpleObjectData = [];
+        let simpleData = [];
+        for (let i = 0; i < objectData.length; i++) {
+            if (objectData[i].rowType === 'simple') {
+                simpleObjectData.push(objectData[i]);
+                simpleData.push(data[i]);
+            }
         }
+        let updatedSimpleObjectData = [];
+        for (let i = 0; i < simpleObjectData.length; i++) {
+            updatedSimpleObjectData.push(mergeDataWithHeaders(columns, simpleData[i], simpleObjectData[i]));
+        }
+        //console.log('updated Data ', updatedSimpleObjectData);
+        const createdSimpleData = updatedSimpleObjectData.filter(item => item.id === '');
+        const updatedSimpleData = updatedSimpleObjectData.filter(item => item.id !== '');
+        createBatchItems(createdSimpleData.map(({ id, ...rest }) => rest));
     };
 
     return (

@@ -87,6 +87,7 @@ public class ItemTotalServiceImpl implements ItemTotalService {
                         .user(userService.getUserById(userId))
                         .attribute(itemTotalRequestDTO.getAttribute())
                         .items(filteredItems)
+                        .rowType(itemTotalRequestDTO.getRowType())
                         .yearTotalValue(yearSums)
                         .createdAt(new Date(System.currentTimeMillis()))
                         .updatedAt(new Date(System.currentTimeMillis()))

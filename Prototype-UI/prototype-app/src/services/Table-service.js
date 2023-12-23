@@ -1,10 +1,11 @@
 import axios from 'axios';
 import { } from '../utils/TableUtils';
 
-export const createItems = async (data) => {
+export const createBatchItems = async (data) => {
+    console.log(data);
     try {
         const authToken = localStorage.getItem('token');
-        const response = await axios.post('/api/api/v1/items', data, {
+        const response = await axios.post('/api/api/v1/items/batch', data, {
             headers: {
                 Authorization: `Bearer ${authToken}`,
                 'Content-Type': 'application/json', // Set the content type to JSON
@@ -60,7 +61,7 @@ export const fetchDataFromAPI = async (headersVal) => {
             // Transform item total
             const itemTotalTransformed = {
                 id: itemTotal.id,
-                rowType: 'total',
+                rowType: itemTotal.rowType,
                 data: {
                     name: itemTotal.name,
                     collectionName: ' ', // Update this as needed
