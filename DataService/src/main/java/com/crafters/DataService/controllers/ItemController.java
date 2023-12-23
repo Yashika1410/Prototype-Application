@@ -2,6 +2,7 @@ package com.crafters.DataService.controllers;
 
 import com.crafters.DataService.dtos.CreateItemRequestDTO;
 import com.crafters.DataService.dtos.ItemResponse;
+import com.crafters.DataService.dtos.UpdateItemRequestDTO;
 import com.crafters.DataService.dtos.YearValueDTO;
 import com.crafters.DataService.services.Impl.AuthServiceImpl;
 import com.crafters.DataService.services.Impl.ItemServiceImpl;
@@ -122,6 +123,17 @@ public class ItemController {
     @Operation(summary = "Delete Item By ID", security = @SecurityRequirement(name = "bearerAuth"))
     public final ResponseEntity<String> deleteItemById(final Authentication authentication, @PathVariable final String itemId) {
         return new ResponseEntity(itemService.deleteItemById(itemId, authService.getUserId(authentication)), HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping("/batch")
+    @Operation(summary = "Update Batch of Items", security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<List<ItemResponse>> updateBatchItems(
+            @RequestBody final List<UpdateItemRequestDTO> updateItemRequestDTOList,
+            final Authentication authentication) {
+
+        String userId = authService.getUserId(authentication);
+        List<ItemResponse> updatedItems = itemService.updateBatchItems(userId, updateItemRequestDTOList);
+        return ResponseEntity.ok(updatedItems);
     }
 
 }

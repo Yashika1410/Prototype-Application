@@ -2,6 +2,7 @@ package com.crafters.DataService.services.Impl;
 
 import com.crafters.DataService.dtos.CreateItemRequestDTO;
 import com.crafters.DataService.dtos.ItemResponse;
+import com.crafters.DataService.dtos.UpdateItemRequestDTO;
 import com.crafters.DataService.dtos.YearValueDTO;
 import com.crafters.DataService.entities.Item;
 import com.crafters.DataService.entities.ItemTotal;
@@ -11,6 +12,7 @@ import com.crafters.DataService.repositories.ItemRepository;
 import com.crafters.DataService.services.ItemService;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -186,6 +188,34 @@ public class ItemServiceImpl implements ItemService {
                         .build()).toList();
         return itemRepository.saveAll(items)
                 .stream().map(item -> new ItemResponse(item)).toList();
+    }
+
+
+    @Override
+    public List<ItemResponse> updateBatchItems(final String userId, final List<UpdateItemRequestDTO> updateItemRequestDTOList) {
+        List<ItemResponse> updatedItems = new ArrayList<>();
+
+        for (UpdateItemRequestDTO updateItemRequestDTO : updateItemRequestDTOList) {
+            // Assuming there is a method to get the item by ID from the repository
+            Item existingItem = itemRepository.findById(updateItemRequestDTO.getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Item not found"));
+
+            // Update the fields as needed
+            existingItem.setName(updateItemRequestDTO.getName());
+            existingItem.setYearValue(updateItemRequestDTO.getYearValue());
+            existingItem.setCollectionName(updateItemRequestDTO.getCollectionName());
+            existingItem.setAttributes(updateItemRequestDTO.getAttributes());
+            existingItem.setUpdatedAt(new Date(System.currentTimeMillis()));
+            existingItem.setRowType(updateItemRequestDTO.getRowType());
+
+            // Save the updated item
+            Item updatedItem = itemRepository.save(existingItem);
+
+            // Create and add the response for the updated item
+            updatedItems.add(new ItemResponse(updatedItem));
+        }
+
+        return updatedItems;
     }
 
 

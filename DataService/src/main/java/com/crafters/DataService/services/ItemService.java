@@ -2,6 +2,7 @@ package com.crafters.DataService.services;
 
 import com.crafters.DataService.dtos.CreateItemRequestDTO;
 import com.crafters.DataService.dtos.ItemResponse;
+import com.crafters.DataService.dtos.UpdateItemRequestDTO;
 import com.crafters.DataService.dtos.YearValueDTO;
 
 import java.util.List;
@@ -59,4 +60,6 @@ public interface ItemService {
             String filterValue);
 
     String deleteItemById(String id, String userId);
+
+    List<ItemResponse> updateBatchItems(String userId,  List<UpdateItemRequestDTO> updateItemRequestDTOList);
 }
