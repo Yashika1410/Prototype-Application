@@ -259,10 +259,12 @@ function Table() {
         const updatedSimpleData = updatedSimpleObjectData.filter(item => item.id !== '');
         console.log(updatedSimpleData);
         console.log(objectData);
-        if (createdSimpleData) {
+        if (createdSimpleData.length !== 0) {
+            console.log('creating items...');
             createBatchItems(createdSimpleData.map(({ id, ...rest }) => rest));
         }
-        if (updatedSimpleData) {
+        if (updatedSimpleData.length !== 0) {
+            console.log('updating items...');
             updateBatchItems(updatedSimpleData);
         }
     };
