@@ -1,5 +1,32 @@
 import { createItemTotal } from "../services/Table-service";
 
+export function mergeDataWithHeadersForItemTotal(headers, selectedData, presentRow) {
+    console.log("data",selectedData)
+    console.log("obj",selectedData)
+    const result = {
+        rowType: presentRow.rowType,
+        id: presentRow.id,
+        data:{name: selectedData[0],
+        attribute: {attributeName:"",attributeValue:""},
+        yearTotalValue: {}}
+    };
+
+    headers.forEach((column, index) => {
+        if (index > 0) {
+            const category = column.category;
+            const columnName = column.label;
+            if (category === 'attribute' && selectedData[index]) {
+                result.data.attribute.attributeName = columnName;
+                result.data.attribute.attributeValue = selectedData[index];
+            } else if (category === 'yearvalue') {
+                result.data.yearTotalValue[columnName] = parseInt(selectedData[index]?selectedData[index]:0);
+            }
+        }
+    });
+
+    return result;
+}
+
 export function mergeDataWithHeaders(headers, selectedData, presentRow) {
     const result = {
         rowType: presentRow.rowType,
@@ -20,14 +47,13 @@ export function mergeDataWithHeaders(headers, selectedData, presentRow) {
             if (category === 'attribute') {
                 result.attributes[columnName] = selectedData[index];
             } else if (category === 'yearvalue') {
-                result.yearValue[columnName] = parseInt(selectedData[index]);
+                result.yearValue[columnName] = parseInt(selectedData[index]?selectedData[index]:0);
             }
         }
     });
 
     return result;
 }
-
 export function createItemJSON(headers, selectedData, presentRow) {
     const result = {
         rowType: presentRow.rowType,

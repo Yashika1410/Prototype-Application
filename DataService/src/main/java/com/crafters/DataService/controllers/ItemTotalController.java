@@ -3,7 +3,7 @@ package com.crafters.DataService.controllers;
 import com.crafters.DataService.dtos.ItemTotalByItemNameResponse;
 import com.crafters.DataService.dtos.ItemTotalRequestDTO;
 import com.crafters.DataService.dtos.ItemTotalResponseDTO;
-import com.crafters.DataService.dtos.YearValueDTO;
+import com.crafters.DataService.dtos.ItemTotalUpdateRequestDTO;
 import com.crafters.DataService.services.Impl.AuthServiceImpl;
 import com.crafters.DataService.services.Impl.ItemTotalServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -99,17 +99,22 @@ public class ItemTotalController {
 
     /**
      * @param itemId
-     * @param yearValueDTOs
+     * @param itemTotalUpdateRequestDTO
      * @param authentication
      * @return ItemTotalResponse
      */
-    @PutMapping("add-new-year-value/{itemId}")
+    @PutMapping("/{itemId}")
+    @Operation(summary = " Update Total by itemTotal id",
+            security = @SecurityRequirement(name = "bearerAuth"))
     public final ResponseEntity<ItemTotalResponseDTO> addNewYearTotal(
             @PathVariable final String itemId,
-            @RequestBody final List<YearValueDTO> yearValueDTOs,
+            @RequestBody final
+            ItemTotalUpdateRequestDTO itemTotalUpdateRequestDTO,
             final Authentication authentication) {
-        return ResponseEntity.ok(itemTotalService.addNewYearValuesById(
-                authService.getUserId(authentication), itemId, yearValueDTOs));
+                System.out.println("Hi" + itemId);
+        return ResponseEntity.ok(itemTotalService.updateTotalItems(
+                        authService.getUserId(authentication),
+                        itemId, itemTotalUpdateRequestDTO));
     }
 
 }
