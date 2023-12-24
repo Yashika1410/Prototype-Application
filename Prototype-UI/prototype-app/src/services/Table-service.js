@@ -48,6 +48,20 @@ export const updateBatchItems = async (data) => {
     }
 };
 
+export const updateTotalItem = async (id,data) => {
+    try {
+        const authToken = localStorage.getItem('token');
+        const response = await axios.put(`/api/api/v1/itemTotals/${id}`, data, {
+            headers: {
+                Authorization: `Bearer ${authToken}`,
+                'Content-Type': 'application/json', // Set the content type to JSON
+            },
+        });
+        console.log('API Response:', response.data);
+    } catch (error) {
+        console.error('API Error:', error);
+    }
+};
 
 export const deleteItem = async (itemId, rowType) => {
     console.log('itemId', itemId);
@@ -146,9 +160,9 @@ export const fetchDataFromAPI = async (headersVal) => {
                 rowType: itemTotal.rowType,
                 data: {
                     name: itemTotal.name,
-                    collectionName: ' ',
+                    collectionName: itemTotal.name,
                     attributes: {
-                        [itemTotal.attribute.attributeName]: itemTotal.name,
+                        [itemTotal.attribute.attributeName]: itemTotal.attribute.attributeValue,
                     },
                     yearTotal: itemTotal.totalValue,
                     rowData: []
@@ -161,7 +175,7 @@ export const fetchDataFromAPI = async (headersVal) => {
                 transformedItem.data.rowData = headersVal.map(header => {
                     if (transformedItem.rowType === 'total') {
                         if (header.category === 'collectionName') {
-                            return transformedItem.data.attributes ? transformedItem.data.attributes[header.label] : '';
+                            return transformedItem.data[header.category]
                         } else if (header.category === 'attribute') {
                             return transformedItem.data.attributes ? transformedItem.data.attributes[header.label] : '';
                         } else if (header.category === 'yearvalue') {

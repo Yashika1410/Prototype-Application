@@ -3,8 +3,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { HotTable } from '@handsontable/react';
 
-import { mergeDataWithHeaders, getListOfSimpleRowsForSubTotal, handleSubtotalClick } from '../utils/TableUtils';
-import { deleteItem, createBatchItems, updateBatchItems, fetchDataFromBackend } from '../services/Table-service';
+import { mergeDataWithHeaders, getListOfSimpleRowsForSubTotal, handleSubtotalClick, mergeDataWithHeadersForItemTotal } from '../utils/TableUtils';
+import { deleteItem, createBatchItems, updateBatchItems, fetchDataFromBackend, updateTotalItem } from '../services/Table-service';
 import './Table.css'
 
 
@@ -247,28 +247,54 @@ function Table() {
     const handleSave = () => {
         let simpleObjectData = [];
         let simpleData = [];
+        let totalObjectData = [];
+        let totalData = [];
         for (let i = 0; i < objectData.length; i++) {
             if (objectData[i].rowType === 'simple') {
                 simpleObjectData.push(objectData[i]);
                 simpleData.push(data[i]);
             }
+            if(objectData[i].rowType==='total'){
+                totalObjectData.push(objectData[i]);
+                totalData.push(data[i]);
+            }
         }
-        let updatedSimpleObjectData = [];
-        for (let i = 0; i < simpleObjectData.length; i++) {
-            updatedSimpleObjectData.push(mergeDataWithHeaders(columns, simpleData[i], simpleObjectData[i]));
+        console.log("Hii",totalData)
+        console.log("biee",totalObjectData)
+        handelItemById(simpleObjectData,simpleData);
+        updateTotalItemById(totalObjectData,totalData);
+
+        function handelItemById(simpleObjectData,simpleData) {
+            let updatedSimpleObjectData = [];
+            for (let i = 0; i < simpleObjectData.length; i++) {
+                updatedSimpleObjectData.push(mergeDataWithHeaders(columns, simpleData[i], simpleObjectData[i]));
+            }
+            //console.log('updated Data ', updatedSimpleObjectData);
+            const createdSimpleData = updatedSimpleObjectData.filter(item => item.id === '');
+            const updatedSimpleData = updatedSimpleObjectData.filter(item => item.id !== '');
+            console.log(updatedSimpleData);
+            console.log(objectData);
+            if (createdSimpleData.length !== 0) {
+                console.log('creating items...');
+                createBatchItems(createdSimpleData.map(({ id, ...rest }) => rest));
+            }
+            if (updatedSimpleData.length !== 0) {
+                console.log('updating items...');
+                updateBatchItems(updatedSimpleData);
+            }
         }
-        //console.log('updated Data ', updatedSimpleObjectData);
-        const createdSimpleData = updatedSimpleObjectData.filter(item => item.id === '');
-        const updatedSimpleData = updatedSimpleObjectData.filter(item => item.id !== '');
-        console.log(updatedSimpleData);
-        console.log(objectData);
-        if (createdSimpleData.length !== 0) {
-            console.log('creating items...');
-            createBatchItems(createdSimpleData.map(({ id, ...rest }) => rest));
-        }
-        if (updatedSimpleData.length !== 0) {
-            console.log('updating items...');
-            updateBatchItems(updatedSimpleData);
+        function updateTotalItemById(totalObjectData,totalData) {
+            let updatedTotalObjectData = [];
+            for (let i = 0; i < totalObjectData.length; i++) {
+                updatedTotalObjectData.push(mergeDataWithHeadersForItemTotal(columns, totalData[i], totalObjectData[i]));
+            }
+            if (updatedTotalObjectData.length !== 0) {
+                console.log('updating totalItems...');
+                updatedTotalObjectData.forEach(updatedValue=>{
+                    updateTotalItem(updatedValue.id,updatedValue.data);
+                    // console.log(updatedValue)
+                })
+            }
         }
     };
 
