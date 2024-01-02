@@ -165,7 +165,7 @@ export const fetchDataFromAPI = async (headersVal) => {
                 "changed":false,
                 data: {
                     name: itemTotal.name,
-                    title: itemTotal.name,
+                    collectionName: itemTotal.name,
                     attributes: {
                         [itemTotal.attribute.attributeName]: itemTotal.attribute.attributeValue,
                     },
@@ -181,8 +181,8 @@ export const fetchDataFromAPI = async (headersVal) => {
                     if (transformedItem.rowType === 'total') {
                         if (header.category === 'collectionName') {
                             return transformedItem.data[header.category]
-                        } else if (header.category === 'attribute') {
-                            return transformedItem.data.attributes ? transformedItem.data.attributes[header.label] : '';
+                        // } else if (header.category === 'attribute') {
+                        //     return transformedItem.data.attributes ? transformedItem.data.attributes[header.label] : '';
                         } else if (header.category === 'yearvalue') {
                             return transformedItem.data.yearTotal[header.label] || 0;
                         }

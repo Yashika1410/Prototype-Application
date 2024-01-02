@@ -1,16 +1,13 @@
 import { createItemTotal } from "../services/Table-service";
 
 export function mergeDataWithHeadersForItemTotal(headers, selectedData, presentRow) {
-    console.log("data",selectedData)
-    console.log("obj",selectedData)
     const result = {
         rowType: presentRow.rowType,
         id: presentRow.id,
-        data:{name: presentRow.data.title,
+        data:{name: selectedData[0],
         attribute: {attributeName:"",attributeValue:""},
         yearTotalValue: {}}
     };
-    console.log("res",result)
     headers.forEach((column, index) => {
         if (index > 0) {
             const category = column.category;
