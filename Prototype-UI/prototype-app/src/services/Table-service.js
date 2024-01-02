@@ -160,7 +160,7 @@ export const fetchDataFromAPI = async (headersVal) => {
                 rowType: itemTotal.rowType,
                 data: {
                     name: itemTotal.name,
-                    collectionName: itemTotal.name,
+                    title: itemTotal.name,
                     attributes: {
                         [itemTotal.attribute.attributeName]: itemTotal.attribute.attributeValue,
                     },

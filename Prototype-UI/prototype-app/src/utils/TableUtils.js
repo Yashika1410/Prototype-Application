@@ -6,11 +6,11 @@ export function mergeDataWithHeadersForItemTotal(headers, selectedData, presentR
     const result = {
         rowType: presentRow.rowType,
         id: presentRow.id,
-        data:{name: selectedData[0],
+        data:{name: presentRow.data.title,
         attribute: {attributeName:"",attributeValue:""},
         yearTotalValue: {}}
     };
-
+    console.log("res",result)
     headers.forEach((column, index) => {
         if (index > 0) {
             const category = column.category;
