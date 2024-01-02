@@ -12,6 +12,7 @@ export const createBatchItems = async (data) => {
             },
         });
         console.log('API Response:', response.data);
+        return response.data;
     } catch (error) {
         console.error('API Error:', error);
     }
@@ -43,6 +44,7 @@ export const updateBatchItems = async (data) => {
             },
         });
         console.log('API Response:', response.data);
+        return response.data;
     } catch (error) {
         console.error('API Error:', error);
     }

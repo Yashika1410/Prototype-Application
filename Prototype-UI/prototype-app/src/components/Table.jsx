@@ -265,6 +265,7 @@ function Table() {
 
         async function handelItemById(simpleObjectData,simpleData) {
             let updatedSimpleObjectData = [];
+            let res=[];
             for (let i = 0; i < simpleObjectData.length; i++) {
                 updatedSimpleObjectData.push(mergeDataWithHeaders(columns, simpleData[i], simpleObjectData[i]));
             }
@@ -275,12 +276,13 @@ function Table() {
             console.log(objectData);
             if (createdSimpleData.length !== 0) {
                 console.log('creating items...');
-                await createBatchItems(createdSimpleData.map(({ id, ...rest }) => rest));
+                res.push(await createBatchItems(createdSimpleData.map(({ id, ...rest }) => rest)));
             }
             if (updatedSimpleData.length !== 0) {
                 console.log('updating items...');
-                await updateBatchItems(updatedSimpleData);
+                res.push(await updateBatchItems(updatedSimpleData));
             }
+            return res;
         }
         function updateTotalItemById(totalObjectData,totalData) {
             let updatedTotalObjectData = [];
