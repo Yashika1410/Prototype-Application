@@ -322,7 +322,6 @@ function Table() {
                 cells={(row, col, prop) => {
                     const isTotalRow = objectData[row] && objectData[row].rowType === 'total';
                     const isEmptyOrUndefined = data[row][col] === '' || data[row][col] === undefined;
-
                     return {
                         readOnly: isTotalRow && isEmptyOrUndefined,
                     };
