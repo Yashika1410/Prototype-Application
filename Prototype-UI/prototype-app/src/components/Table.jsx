@@ -16,10 +16,6 @@ function Table() {
         const storedColumns = localStorage.getItem('tableColumns');
         return storedColumns ? JSON.parse(storedColumns) : [];
     });
-
-    useEffect(() => {
-        localStorage.setItem('tableColumns', JSON.stringify(columns));
-
         const fetchData = async () => {
             try {
                 const fetchedData = await fetchDataFromBackend(columns);
@@ -30,6 +26,9 @@ function Table() {
                 console.error('Error fetching data:', error);
             }
         };
+    useEffect(() => {
+        localStorage.setItem('tableColumns', JSON.stringify(columns));
+
         fetchData();
 
     }, [columns]);
@@ -244,7 +243,7 @@ function Table() {
             },
         },
     ];
-    const handleSave = () => {
+    const handleSave = async () => {
         let simpleObjectData = [];
         let simpleData = [];
         let totalObjectData = [];
@@ -259,12 +258,12 @@ function Table() {
                 totalData.push(data[i]);
             }
         }
-        console.log("Hii",totalData)
-        console.log("biee",totalObjectData)
-        handelItemById(simpleObjectData,simpleData);
+        await handelItemById(simpleObjectData,simpleData);
         updateTotalItemById(totalObjectData,totalData);
+        await new Promise(res => setTimeout(res, 1000));
+        fetchData();
 
-        function handelItemById(simpleObjectData,simpleData) {
+        async function handelItemById(simpleObjectData,simpleData) {
             let updatedSimpleObjectData = [];
             for (let i = 0; i < simpleObjectData.length; i++) {
                 updatedSimpleObjectData.push(mergeDataWithHeaders(columns, simpleData[i], simpleObjectData[i]));
@@ -276,11 +275,11 @@ function Table() {
             console.log(objectData);
             if (createdSimpleData.length !== 0) {
                 console.log('creating items...');
-                createBatchItems(createdSimpleData.map(({ id, ...rest }) => rest));
+                await createBatchItems(createdSimpleData.map(({ id, ...rest }) => rest));
             }
             if (updatedSimpleData.length !== 0) {
                 console.log('updating items...');
-                updateBatchItems(updatedSimpleData);
+                await updateBatchItems(updatedSimpleData);
             }
         }
         function updateTotalItemById(totalObjectData,totalData) {
