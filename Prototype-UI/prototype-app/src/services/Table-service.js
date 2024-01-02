@@ -91,6 +91,7 @@ export const fetchDataFromBackend = async (columns) => {
         return {
             "rowType": inputItem.rowType,
             "id": inputItem.id,
+            "changed":false,
             "data": {
                 "name": inputItem.name,
                 "collectionName": inputItem.collectionName,
@@ -149,6 +150,7 @@ export const fetchDataFromAPI = async (headersVal) => {
             const itemList = itemTotal.listOfItems.map(item => ({
                 rowType: 'simple',
                 id: item.id,
+                "changed":false,
                 data: {
                     name: item.name,
                     collectionName: item.collectionName,
@@ -160,6 +162,7 @@ export const fetchDataFromAPI = async (headersVal) => {
             const itemTotalTransformed = {
                 id: itemTotal.id,
                 rowType: itemTotal.rowType,
+                "changed":false,
                 data: {
                     name: itemTotal.name,
                     title: itemTotal.name,

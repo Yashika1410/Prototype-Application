@@ -83,11 +83,10 @@ function Table() {
     const handleAfterChange = (changes, source) => {
         if (source === 'edit') {
             const [row, prop, oldValue, newValue] = changes[0];
-            setData((prevData) => {
-                prevData[row][prop] = newValue;
-                return prevData;
+            setObjectData((prevObjData) => {
+                prevObjData[row]["changed"] = true;
+                return prevObjData;
             });
-
         }
     };
 
@@ -249,6 +248,7 @@ function Table() {
         let totalObjectData = [];
         let totalData = [];
         for (let i = 0; i < objectData.length; i++) {
+            if(objectData[i]["changed"]){
             if (objectData[i].rowType === 'simple') {
                 simpleObjectData.push(objectData[i]);
                 simpleData.push(data[i]);
@@ -257,7 +257,7 @@ function Table() {
                 totalObjectData.push(objectData[i]);
                 totalData.push(data[i]);
             }
-        }
+        }}
         await handelItemById(simpleObjectData,simpleData);
         updateTotalItemById(totalObjectData,totalData);
         await new Promise(res => setTimeout(res, 1000));
