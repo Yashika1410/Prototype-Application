@@ -12,9 +12,9 @@ export function mergeDataWithHeadersForItemTotal(headers, selectedData, presentR
         if (index > 0) {
             const category = column.category;
             const columnName = column.label;
-            if (category === 'attribute' && selectedData[index]) {
+            if (category === 'attribute' &&  presentRow.data.attributes[columnName]) {
                 result.data.attribute.attributeName = columnName;
-                result.data.attribute.attributeValue = selectedData[index];
+                result.data.attribute.attributeValue = presentRow.data.attributes[columnName]?presentRow.data.attributes[columnName]:'';
             } else if (category === 'yearvalue') {
                 result.data.yearTotalValue[columnName] = parseInt(selectedData[index]?selectedData[index]:0);
             }

@@ -161,13 +161,16 @@ public class ItemTotalServiceImpl implements ItemTotalService {
         Set<String> referenceKeys = items.get(0).getYearValue().keySet();
         return items.stream()
                 .allMatch(
-                        item -> item.getYearValue().keySet().equals(referenceKeys));
+                        item -> item.getYearValue()
+                                    .keySet()
+                                    .equals(referenceKeys));
     }
 
     @Override
     public final List<ItemTotalResponseDTO> getAllItemTotal(
             final String userId) {
-        List<ItemTotal> itemTotalsList = itemTotalRepository.findAll();
+        List<ItemTotal> itemTotalsList = itemTotalRepository.findByUser_Id(
+            userId);
         return itemTotalsList.stream()
                 .map(ItemTotalResponseDTO::new)
                 .collect(Collectors.toList());
