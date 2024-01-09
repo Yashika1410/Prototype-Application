@@ -68,8 +68,9 @@ public class ItemTotalServiceImpl implements ItemTotalService {
     }
 
     @Override
-    public final ItemTotalResponseDTO createItemTotal(final String userId,
-                                                      final ItemTotalRequestDTO itemTotalRequestDTO) {
+    public final ItemTotalResponseDTO createItemTotal(
+        final String userId,
+        final ItemTotalRequestDTO itemTotalRequestDTO) {
 
         List<String> itemIds = itemTotalRequestDTO.getItemIds();
         Attribute attribute = itemTotalRequestDTO.getAttribute();
@@ -228,18 +229,23 @@ public class ItemTotalServiceImpl implements ItemTotalService {
      * @param yearValueDTOs
      * @return ItemTotal
      */
-    public Map<String, Integer> addNewYearValuesById(
+    public Map<String, Integer> addNewYearValues(
             final ItemTotal itemTotal,
             final Map<String, Integer> yearValueDTOs) {
         Map<String, Long> ratioMap = new HashMap<>();
-        String year = itemTotal.getItems().get(
-                (0)).getYearValue().keySet().iterator().next();
+        Set<String> keySet = itemTotal.getItems().get(
+                0).getYearValue().keySet();
+        // Converting the key set to a List
+        List<String> keyList = new ArrayList<>(keySet);
+        String year = yearValueDTOs.keySet().contains(
+            keyList.get(
+                keyList.size() - 1)) ? keyList.get(
+                    keyList.size() - 2) : keyList.get(keyList.size() - 1);
         System.out.println(year);
         itemTotal.getItems().forEach(i -> {
             ratioMap.put(i.getId(), Long.valueOf(
                     i.getYearValue().get(year)
                      * HUNDRED / itemTotal.getYearTotalValue().get(year)));
-
         });
         System.out.println(ratioMap.toString());
         ratioMap.forEach((k, v) -> {
@@ -263,11 +269,54 @@ public class ItemTotalServiceImpl implements ItemTotalService {
         return updatedYearValue;
     }
 
-    public final String deleteItemTotalById(final String itemTotalId, final String userId) {
-        System.out.println("id------------------------------------------" + itemTotalId);
-        System.out.println("userId------------------------------------------" + userId);
-        ItemTotal itemTotal = itemTotalRepository.findByIdAndUser_Id(itemTotalId, userId).orElseThrow(() -> {
-            throw new EntityNotFoundException("ItemTotal Not found by given ID");
+    /**
+     * @param itemTotal
+     * @param yearValueDTOs
+     * @return ItemTotal
+     */
+    public Map<String, Integer> updateExistingYearValues(
+            final ItemTotal itemTotal,
+            final Map<String, Integer> yearValueDTOs) {
+        Map<String, Long> ratioMap = new HashMap<>();
+        Map<String, Integer> oldMap = itemTotal.getYearTotalValue();
+        yearValueDTOs.forEach((key, val) -> {
+            ratioMap.put(key, Long.valueOf(
+                    val
+                     * HUNDRED / oldMap.get(key)));
+        });
+        itemTotal.getItems().forEach(i -> {
+            Item item = itemRepository.findById(i.getId())
+                    .orElseThrow(
+                            () -> new EntityNotFoundException(
+                                    "item not found by this Id: " + i));
+            Map<String, Integer> map = item.getYearValue();
+            ratioMap.forEach((key, value) -> {
+                map.put(
+                        key, Math.round(
+                                item.getYearValue()
+                                .get(key) * value) / HUNDRED);
+            });
+            item.setYearValue(map);
+            itemRepository.save(item);
+        });
+        Map<String, Integer> updatedYearValue = itemTotal.getYearTotalValue();
+        yearValueDTOs.forEach((key, value) -> {
+            updatedYearValue.put(key, value);
+        });
+        return updatedYearValue;
+    }
+
+    /**
+     * @param itemTotalId
+     * @param userId
+     * @return k.
+     */
+    public final String deleteItemTotalById(
+        final String itemTotalId, final String userId) {
+        ItemTotal itemTotal = itemTotalRepository.findByIdAndUser_Id(
+            itemTotalId, userId).orElseThrow(() -> {
+            throw new EntityNotFoundException(
+                "ItemTotal Not found by given ID");
         });
         itemTotal.getItems().stream().forEach((item) -> {
             deleteItemTotalFromItem(item, itemTotalId);
@@ -327,6 +376,7 @@ public class ItemTotalServiceImpl implements ItemTotalService {
                     itemTotalUpdateRequestDTO.getName());
                 }
             Map<String, Integer> newYearValue = new HashMap<>();
+            Map<String, Integer> oldYearValue = new HashMap<>();
             itemTotalUpdateRequestDTO.getYearTotalValue().forEach(
                 (key, value) -> {
                 if (!itemTotal.getYearTotalValue()
@@ -334,12 +384,21 @@ public class ItemTotalServiceImpl implements ItemTotalService {
                     newYearValue.put(key, value);
                 } else if (!itemTotal.getYearTotalValue()
                 .get(key).equals(value)) {
-                        newYearValue.put(key, value);
+                    if (itemTotal.getYearTotalValue()
+                .get(key).equals(0)) {
+                    newYearValue.put(key, value);
+                } else {
+                        oldYearValue.put(key, value);
                     }
+                }
             });
+            if (!oldYearValue.isEmpty()) {
+                itemTotal.setYearTotalValue(
+                    updateExistingYearValues(itemTotal, oldYearValue));
+            }
             if (!newYearValue.isEmpty()) {
                 itemTotal.setYearTotalValue(
-                    addNewYearValuesById(itemTotal, newYearValue));
+                    addNewYearValues(itemTotal, newYearValue));
             }
         return new ItemTotalResponseDTO(itemTotalRepository.save(itemTotal));
     }
