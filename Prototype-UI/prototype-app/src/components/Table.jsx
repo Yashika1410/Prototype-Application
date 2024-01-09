@@ -16,27 +16,23 @@ function Table() {
         const storedColumns = localStorage.getItem('tableColumns');
         return storedColumns ? JSON.parse(storedColumns) : [];
     });
-        const fetchData = async () => {
-            try {
-                const fetchedData = await fetchDataFromBackend(columns);
-                //const fetchedData = await fetchDataFromAPI(columns);
-                setObjectData(fetchedData);
-                setData(fetchedData.map(row => row.data.rowData))
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
+    const fetchData = async () => {
+        try {
+            const fetchedData = await fetchDataFromBackend(columns);
+            setObjectData(fetchedData);
+            setData(fetchedData.map(row => row.data.rowData))
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
     useEffect(() => {
         localStorage.setItem('tableColumns', JSON.stringify(columns));
-
         fetchData();
-
     }, [columns]);
 
     const addColumn = () => {
         let columnName;
         let category;
-
         if (columns.length === 0) {
             columnName = prompt('Enter name for the first column:');
             category = 'collectionName';
@@ -50,16 +46,15 @@ function Table() {
             } else if (categoryInput === 'y') {
                 columnName = prompt('Enter name for the new yearValue column:');
                 category = 'yearvalue';
-            } else if (categoryInput === 's') { // Step 2
+            } else if (categoryInput === 's') {
                 setSubtotalCategory(prompt('Enter category for subtotal: (a for attribute, c for collectionName)').toLowerCase());
-                return; // Skip adding a new column for subtotal category
+                return;
             } else {
                 alert('Invalid category. Please enter "a" for attribute or "y" for yearValue.');
                 return;
             }
         }
 
-        // Determine the index to insert the new column
         const insertIndex = category === 'attribute' ? 1 : columns.length;
 
         setColumns(prevColumns => [
@@ -67,9 +62,8 @@ function Table() {
             { label: columnName, category },
             ...prevColumns.slice(insertIndex),
         ]);
-
-
     };
+
     const addRow = (isTotalRow = false, grandTotalData) => {
         if (isTotalRow) {
             setData(prevData => [...prevData, grandTotalData]);
@@ -80,12 +74,19 @@ function Table() {
             setData(prevData => [...prevData, newRow]);
         }
     };
+
     const handleAfterChange = (changes, source) => {
         if (source === 'edit') {
             const [row, prop, oldValue, newValue] = changes[0];
-            setObjectData((prevObjData) => {
-                prevObjData[row]["changed"] = true;
-                return prevObjData;
+            setData((prevData) => {
+                const updatedData = [...prevData];
+                updatedData[row][prop] = newValue;
+                if (objectData[row].rowType === 'total') {
+                    const updatedItemTotal = mergeDataWithHeadersForItemTotal(columns, updatedData[row], objectData[row]);
+                    updateTotalItem(updatedItemTotal.id, updatedItemTotal.data)
+                        .then(() => { fetchData() })
+                }
+                return updatedData;
             });
         }
     };
@@ -96,7 +97,6 @@ function Table() {
         if (selectedRange && selectedRange.start && selectedRange.start.row !== null) {
             const selectedRow = selectedRange.start.row;
             const selectedData = hot.current.hotInstance.getSourceDataAtRow(selectedRow);
-            console.log('selectedData', selectedData);
             const mergedData = mergeDataWithHeaders(columns, selectedData, objectData[selectedRow]);
             console.log('Merged Data:', mergedData);
         } else {
@@ -123,17 +123,13 @@ function Table() {
                 getListOfSimpleRowsForSubTotal(relevantData);
                 return updatedData;
             });
-
         }
-
     };
 
     const calculateGrandTotal = (data, columns) => {
         const grandTotal = columns.map(column => {
             if (column.category === 'yearvalue') {
-
                 const columnIndex = columns.indexOf(column);
-
                 if (columnIndex >= 0) {
                     const total = data.reduce((sum, row) => {
 
@@ -163,7 +159,6 @@ function Table() {
         }
     };
 
-
     const customContextMenu = [
         {
             key: 'row_below',
@@ -190,25 +185,6 @@ function Table() {
                 }
             },
         },
-        // {
-        //     key: 'remove_row',
-        //     name: 'Remove Row',
-        //     callback: (key, options) => {
-        //         const selectedRange = Array.isArray(options) && options.length > 0 ? options[0] : null;
-
-        //         if (selectedRange && selectedRange.start && selectedRange.start.row !== null) {
-        //             const selectedRow = selectedRange.start.row;
-
-        //             setData(prevData =>
-        //                 prevData.filter((row, index) => index !== selectedRow)
-        //             );
-
-        //             setData(updatedData => {
-        //                 return updatedData;
-        //             });
-        //         }
-        //     },
-        // },
         '---------',
         'copy',
         'cut',
@@ -248,58 +224,37 @@ function Table() {
         let totalObjectData = [];
         let totalData = [];
         for (let i = 0; i < objectData.length; i++) {
-            if(objectData[i]["changed"]){
             if (objectData[i].rowType === 'simple') {
                 simpleObjectData.push(objectData[i]);
                 simpleData.push(data[i]);
             }
-            if(objectData[i].rowType==='total'){
+            if (objectData[i].rowType === 'total') {
                 totalObjectData.push(objectData[i]);
                 totalData.push(data[i]);
             }
-        }}
-        await handelItemById(simpleObjectData,simpleData);
-        updateTotalItemById(totalObjectData,totalData);
-        await new Promise(res => setTimeout(res, 1000));
-        fetchData();
+        }
+        await handelItemById(simpleObjectData, simpleData).then(() => fetchData())
 
-        async function handelItemById(simpleObjectData,simpleData) {
+        async function handelItemById(simpleObjectData, simpleData) {
             let updatedSimpleObjectData = [];
-            let res=[];
             for (let i = 0; i < simpleObjectData.length; i++) {
                 updatedSimpleObjectData.push(mergeDataWithHeaders(columns, simpleData[i], simpleObjectData[i]));
             }
-            //console.log('updated Data ', updatedSimpleObjectData);
+
             const createdSimpleData = updatedSimpleObjectData.filter(item => item.id === '');
             const updatedSimpleData = updatedSimpleObjectData.filter(item => item.id !== '');
-            console.log(updatedSimpleData);
-            console.log(objectData);
+
             if (createdSimpleData.length !== 0) {
                 console.log('creating items...');
-                res.push(await createBatchItems(createdSimpleData.map(({ id, ...rest }) => rest)));
+                await createBatchItems(createdSimpleData.map(({ id, ...rest }) => rest));
             }
             if (updatedSimpleData.length !== 0) {
                 console.log('updating items...');
-                res.push(await updateBatchItems(updatedSimpleData));
+                await updateBatchItems(updatedSimpleData);
             }
-            return res;
-        }
-        function updateTotalItemById(totalObjectData,totalData) {
-            let updatedTotalObjectData = [];
-            for (let i = 0; i < totalObjectData.length; i++) {
-                updatedTotalObjectData.push(mergeDataWithHeadersForItemTotal(columns, totalData[i], totalObjectData[i]));
-            }
-            if (updatedTotalObjectData.length !== 0) {
-                console.log('updating totalItems...');
-                updatedTotalObjectData.forEach(updatedValue=>{
-                    updateTotalItem(updatedValue.id,updatedValue.data);
-                    // console.log(updatedValue)
-                })
-            }
+
         }
     };
-
-
 
     return (
         <div>
@@ -307,12 +262,11 @@ function Table() {
             <button className="actionButton" onClick={() => addRow()}>Add Row</button>
             <button className="saveButton" onClick={handleSave}>Save Data</button>
             <button className="grandTotalButton" onClick={handleGrandTotalClick}>Grand Total</button>
-            <button className="actionButton" onClick={() => { handleSubtotalClick(objectData) }}>Sub Total</button> <hr />
+            <button className="actionButton" onClick={() => { handleSubtotalClick(objectData).then(() => fetchData()) }}>Sub Total</button> <hr />
 
             <HotTable
                 ref={hot}
                 data={data}
-                //data={data.map(row => row.data.rowData)}
                 colHeaders={columns.map(column => column.label)}
                 rowHeaders={true}
                 height="auto"

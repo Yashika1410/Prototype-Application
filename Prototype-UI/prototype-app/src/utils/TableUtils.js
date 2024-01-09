@@ -4,19 +4,21 @@ export function mergeDataWithHeadersForItemTotal(headers, selectedData, presentR
     const result = {
         rowType: presentRow.rowType,
         id: presentRow.id,
-        data:{name: selectedData[0],
-        attribute: {attributeName:"",attributeValue:""},
-        yearTotalValue: {}}
+        data: {
+            name: selectedData[0],
+            attribute: { attributeName: "", attributeValue: "" },
+            yearTotalValue: {}
+        }
     };
     headers.forEach((column, index) => {
         if (index > 0) {
             const category = column.category;
             const columnName = column.label;
-            if (category === 'attribute' &&  presentRow.data.attributes[columnName]) {
+            if (category === 'attribute' && presentRow.data.attributes[columnName]) {
                 result.data.attribute.attributeName = columnName;
-                result.data.attribute.attributeValue = presentRow.data.attributes[columnName]?presentRow.data.attributes[columnName]:'';
+                result.data.attribute.attributeValue = presentRow.data.attributes[columnName] ? presentRow.data.attributes[columnName] : '';
             } else if (category === 'yearvalue') {
-                result.data.yearTotalValue[columnName] = parseInt(selectedData[index]?selectedData[index]:0);
+                result.data.yearTotalValue[columnName] = parseInt(selectedData[index] ? selectedData[index] : 0);
             }
         }
     });
@@ -28,12 +30,10 @@ export function mergeDataWithHeaders(headers, selectedData, presentRow) {
     const result = {
         rowType: presentRow.rowType,
         id: presentRow.id ? presentRow.id : '',
-        // data: {
         name: headers.find(column => column.category === 'collectionName').label,
         collectionName: selectedData[0],
         attributes: {},
         yearValue: {}
-        // }
     };
 
     headers.forEach((column, index) => {
@@ -44,7 +44,7 @@ export function mergeDataWithHeaders(headers, selectedData, presentRow) {
             if (category === 'attribute') {
                 result.attributes[columnName] = selectedData[index];
             } else if (category === 'yearvalue') {
-                result.yearValue[columnName] = parseInt(selectedData[index]?selectedData[index]:0);
+                result.yearValue[columnName] = parseInt(selectedData[index] ? selectedData[index] : 0);
             }
         }
     });
@@ -91,27 +91,44 @@ export const getListOfSimpleRowsForSubTotal = (data) => {
 };
 
 export const handleSubtotalClick = (data) => {
+    return new Promise((resolve, reject) => {
+        const rowIndex = data.length + 1;
+        let attributeName = prompt(`For row ${rowIndex} Enter the name of the attribute:`);
+        if (!attributeName) {
+            reject('Attribute name not provided.');
+            return;
+        }
 
-    const rowIndex = data.length + 1;
-    let attributeName = prompt(`For row ${rowIndex} Enter the name of the attribute:`);
-    if (!attributeName) return;
-    let attributeValue = prompt(`Enter the attribute value for "${attributeName}":`);
-    if (!attributeValue) return;
-    let subtotalHeading = prompt('Enter the title of the subtotal:');
-    if (!subtotalHeading) return
-    const itemTotal = {
-        name: subtotalHeading,
-        rowType: 'total',
-        attribute: {
-            attributeName,
-            attributeValue
-        },
-        itemIds: getListOfSimpleRowsForSubTotal(data),
-        yearTotalValue: {}
-    };
+        let attributeValue = prompt(`Enter the attribute value for "${attributeName}":`);
+        if (!attributeValue) {
+            reject('Attribute value not provided.');
+            return;
+        }
 
-    createItemTotal(itemTotal);
+        let subtotalHeading = prompt('Enter the title of the subtotal:');
+        if (!subtotalHeading) {
+            reject('Subtotal heading not provided.');
+            return;
+        }
+
+        const itemTotal = {
+            name: subtotalHeading,
+            rowType: 'total',
+            attribute: {
+                attributeName,
+                attributeValue
+            },
+            itemIds: getListOfSimpleRowsForSubTotal(data),
+            yearTotalValue: {}
+        };
+    
+        createItemTotal(itemTotal)
+            .then(() => {
+                resolve();
+            });
+    });
 };
+
 
 
 
