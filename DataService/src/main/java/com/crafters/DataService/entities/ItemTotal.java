@@ -27,7 +27,7 @@ public class ItemTotal {
     private User user;
     @DBRef
     private List<Item> items;
-    private Map<String, Integer> yearTotalValue;
+    private Map<String, Double> yearTotalValue;
     private Date createdAt;
     private Date updatedAt;
 }

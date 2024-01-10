@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class YearValueDTO {
     private String year;
-    private Integer value;
+    private Double value;
 }

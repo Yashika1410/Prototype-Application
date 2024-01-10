@@ -14,5 +14,5 @@ import lombok.NoArgsConstructor;
 public class ItemTotalByItemNameResponse {
      private String name;
     private String collectionName;
-    private Map<String, Integer> yearValue;
+    private Map<String, Double> yearValue;
 }

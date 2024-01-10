@@ -44,7 +44,7 @@ public class Item {
     /**
      *
      */
-    private Map<String, Integer> yearValue;
+    private Map<String, Double> yearValue;
     /**
      *
      */

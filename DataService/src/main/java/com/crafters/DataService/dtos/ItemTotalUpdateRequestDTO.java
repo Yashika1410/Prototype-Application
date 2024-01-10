@@ -14,5 +14,5 @@ import java.util.Map;
 public class ItemTotalUpdateRequestDTO {
     private String name;
     private Attribute attribute;
-    private Map<String, Integer> yearTotalValue;
+    private Map<String, Double> yearTotalValue;
 }

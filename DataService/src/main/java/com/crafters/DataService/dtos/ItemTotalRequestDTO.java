@@ -18,5 +18,5 @@ public class ItemTotalRequestDTO {
     private String rowType;
     private Attribute attribute;
     private List<String> itemIds;
-    private Map<String, Integer> yearTotalValue;
+    private Map<String, Double> yearTotalValue;
 }

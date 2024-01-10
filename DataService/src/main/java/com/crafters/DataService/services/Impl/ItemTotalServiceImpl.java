@@ -79,7 +79,7 @@ public class ItemTotalServiceImpl implements ItemTotalService {
         }
         List<Item> items = itemRepository.findByUser_IdAndIdIn(userId, itemIds);
         List<Item> filteredItems = filterItemsByAttribute(items, attribute);
-        Map<String, Integer> yearSums = calculateYearSums(
+        Map<String, Double> yearSums = calculateYearSums(
                 itemTotalRequestDTO.getYearTotalValue(), filteredItems);
 
         ItemTotal itemTotal = itemTotalRepository
@@ -98,20 +98,26 @@ public class ItemTotalServiceImpl implements ItemTotalService {
         return new ItemTotalResponseDTO(itemTotal);
     }
 
-    public final void updateAndDeleteItem(final ItemTotal itemTotal, final String itemIdToDelete) {
+    public final void updateAndDeleteItem(
+        final ItemTotal itemTotal, final String itemIdToDelete) {
         List<Item> items = itemTotal.getItems();
         if (items.removeIf(item -> item.getId().equals(itemIdToDelete))) {
             if (items.isEmpty()) {
                 itemTotalRepository.delete(itemTotal);
             } else {
-                Map<String, Integer> yearSums = calculateYearSumsOfItems(items);
+                Map<String, Double> yearSums = calculateYearSumsOfItems(items);
                 itemTotal.setYearTotalValue(yearSums);
                 itemTotalRepository.save(itemTotal);
             }
         }
     }
 
-    public final Map<String, Integer> calculateYearSumsOfItems(final List<Item> items) {
+    /**
+     * @param items
+     * @return k.
+     */
+    public final Map<String, Double> calculateYearSumsOfItems(
+        final List<Item> items) {
         if (!allItemsHaveSameKeys(items)) {
             throw new IllegalStateException(
                     "All attributes must be of the same type");
@@ -121,7 +127,7 @@ public class ItemTotalServiceImpl implements ItemTotalService {
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         Map.Entry::getValue,
-                        Integer::sum));
+                        Double::sum));
     }
 
     private List<Item> filterItemsByAttribute(
@@ -134,8 +140,8 @@ public class ItemTotalServiceImpl implements ItemTotalService {
                 .collect(Collectors.toList());
     }
 
-    private Map<String, Integer> calculateYearSums(
-            final Map<String, Integer> yearTotalValue,
+    private Map<String, Double> calculateYearSums(
+            final Map<String, Double> yearTotalValue,
             final List<Item> filteredItems) {
         if (yearTotalValue.isEmpty()) {
             if (!allItemsHaveSameKeys(filteredItems)) {
@@ -148,7 +154,7 @@ public class ItemTotalServiceImpl implements ItemTotalService {
                     .collect(Collectors.toMap(
                             Map.Entry::getKey,
                             Map.Entry::getValue,
-                            Integer::sum));
+                            Double::sum));
         } else {
             return yearTotalValue;
         }
@@ -217,9 +223,11 @@ public class ItemTotalServiceImpl implements ItemTotalService {
         return ItemTotalByItemNameResponse.builder()
                 .collectionName(itemTotalList.get(0).getName())
                 .yearValue(itemTotalList.stream().flatMap(
-                        itemTotal -> itemTotal.getYearTotalValue().entrySet().stream()).collect(
+                        itemTotal -> itemTotal.getYearTotalValue().
+                        entrySet().stream()).collect(
                                 Collectors.toMap(
-                                        Map.Entry::getKey, Map.Entry::getValue, Integer::sum)))
+                                        Map.Entry::getKey,
+                                        Map.Entry::getValue, Double::sum)))
                 .name(itemName).build();
 
     }
@@ -229,9 +237,9 @@ public class ItemTotalServiceImpl implements ItemTotalService {
      * @param yearValueDTOs
      * @return ItemTotal
      */
-    public Map<String, Integer> addNewYearValues(
+    public Map<String, Double> addNewYearValues(
             final ItemTotal itemTotal,
-            final Map<String, Integer> yearValueDTOs) {
+            final Map<String, Double> yearValueDTOs) {
         Map<String, Long> ratioMap = new HashMap<>();
         Set<String> keySet = itemTotal.getItems().get(
                 0).getYearValue().keySet();
@@ -243,8 +251,8 @@ public class ItemTotalServiceImpl implements ItemTotalService {
                     keyList.size() - 2) : keyList.get(keyList.size() - 1);
         System.out.println(year);
         itemTotal.getItems().forEach(i -> {
-            ratioMap.put(i.getId(), Long.valueOf(
-                    i.getYearValue().get(year)
+            ratioMap.put(i.getId(),
+                    (long) (i.getYearValue().get(year)
                      * HUNDRED / itemTotal.getYearTotalValue().get(year)));
         });
         System.out.println(ratioMap.toString());
@@ -253,16 +261,18 @@ public class ItemTotalServiceImpl implements ItemTotalService {
                     .orElseThrow(
                             () -> new EntityNotFoundException(
                                     "item not found by this Id: " + k));
-            Map<String, Integer> map = item.getYearValue();
+            Map<String, Double> map = item.getYearValue();
             yearValueDTOs.forEach((key, value) -> {
+                Double x = Math.ceil(
+                                (v * value));
+                System.out.println(x);
                 map.put(
-                        key, Math.round(
-                                v * value) / HUNDRED);
+                        key, (x / HUNDRED));
             });
             item.setYearValue(map);
             itemRepository.save(item);
         });
-        Map<String, Integer> updatedYearValue = itemTotal.getYearTotalValue();
+        Map<String, Double> updatedYearValue = itemTotal.getYearTotalValue();
         yearValueDTOs.forEach((key, value) -> {
             updatedYearValue.put(key, value);
         });
@@ -274,13 +284,13 @@ public class ItemTotalServiceImpl implements ItemTotalService {
      * @param yearValueDTOs
      * @return ItemTotal
      */
-    public Map<String, Integer> updateExistingYearValues(
+    public Map<String, Double> updateExistingYearValues(
             final ItemTotal itemTotal,
-            final Map<String, Integer> yearValueDTOs) {
+            final Map<String, Double> yearValueDTOs) {
         Map<String, Long> ratioMap = new HashMap<>();
-        Map<String, Integer> oldMap = itemTotal.getYearTotalValue();
+        Map<String, Double> oldMap = itemTotal.getYearTotalValue();
         yearValueDTOs.forEach((key, val) -> {
-            ratioMap.put(key, Long.valueOf(
+            ratioMap.put(key, (long) (
                     val
                      * HUNDRED / oldMap.get(key)));
         });
@@ -289,17 +299,19 @@ public class ItemTotalServiceImpl implements ItemTotalService {
                     .orElseThrow(
                             () -> new EntityNotFoundException(
                                     "item not found by this Id: " + i));
-            Map<String, Integer> map = item.getYearValue();
+            Map<String, Double> map = item.getYearValue();
             ratioMap.forEach((key, value) -> {
+                Double x = Math.ceil(
+                                (item.getYearValue()
+                                .get(key) * value));
+                System.out.println(x);
                 map.put(
-                        key, Math.round(
-                                item.getYearValue()
-                                .get(key) * value) / HUNDRED);
+                        key, (x / HUNDRED));
             });
             item.setYearValue(map);
             itemRepository.save(item);
         });
-        Map<String, Integer> updatedYearValue = itemTotal.getYearTotalValue();
+        Map<String, Double> updatedYearValue = itemTotal.getYearTotalValue();
         yearValueDTOs.forEach((key, value) -> {
             updatedYearValue.put(key, value);
         });
@@ -375,8 +387,8 @@ public class ItemTotalServiceImpl implements ItemTotalService {
                 itemTotal.setName(
                     itemTotalUpdateRequestDTO.getName());
                 }
-            Map<String, Integer> newYearValue = new HashMap<>();
-            Map<String, Integer> oldYearValue = new HashMap<>();
+            Map<String, Double> newYearValue = new HashMap<>();
+            Map<String, Double> oldYearValue = new HashMap<>();
             itemTotalUpdateRequestDTO.getYearTotalValue().forEach(
                 (key, value) -> {
                 if (!itemTotal.getYearTotalValue()

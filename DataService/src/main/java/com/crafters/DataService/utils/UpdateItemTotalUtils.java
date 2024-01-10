@@ -28,7 +28,7 @@ public class UpdateItemTotalUtils {
 
         for (ItemTotal itemTotal : itemTotals) {
             List<Item> items = itemTotal.getItems();
-            Map<String, Integer> yearSums = itemTotalService.calculateYearSumsOfItems(items);
+            Map<String, Double> yearSums = itemTotalService.calculateYearSumsOfItems(items);
             itemTotal.setYearTotalValue(yearSums);
 
             updatedItemTotals.add(itemTotal);

@@ -20,7 +20,7 @@ public class ItemTotalResponseDTO {
     private String rowType;
     private Attribute attribute;
     private List<ItemResponse> listOfItems;
-    private Map<String, Integer> totalValue;
+    private Map<String, Double> totalValue;
 
     public ItemTotalResponseDTO(ItemTotal itemTotal) {
         this.id = itemTotal.getId();

@@ -165,7 +165,7 @@ public class ItemServiceImpl implements ItemService {
             final String userId, final String itemId,
             final List<YearValueDTO> listOfYearValues) {
         Item item = getItemByUserIdItemId(userId, itemId);
-        Map<String, Integer> map = item.getYearValue();
+        Map<String, Double> map = item.getYearValue();
         listOfYearValues.forEach(yearValue -> {
             map.put(yearValue.getYear(), yearValue.getValue());
         });
