@@ -1,14 +1,15 @@
 package com.crafters.DataService.dtos;
-import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateItemRequestDTO {
+public class UpdateItemRequestDTO {
+    private String id;
     private String name;
     private String rowType;
     private String collectionName;

@@ -21,6 +21,7 @@ public class ItemTotal {
     @Id
     private String id;
     private String name;
+    private String rowType;
     private Attribute attribute;
     @DBRef
     private User user;
