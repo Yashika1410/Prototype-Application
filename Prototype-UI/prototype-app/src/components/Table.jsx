@@ -84,7 +84,7 @@ function Table() {
                 if (objectData[row].rowType === 'total') {
                     const updatedItemTotal = mergeDataWithHeadersForItemTotal(columns, updatedData[row], objectData[row]);
                     updateTotalItem(updatedItemTotal.id, updatedItemTotal.data)
-                        .then(() => { fetchData() })
+                       .then(() => { fetchData() })
                 }
                 return updatedData;
             });

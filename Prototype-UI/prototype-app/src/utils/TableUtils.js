@@ -5,7 +5,7 @@ export function mergeDataWithHeadersForItemTotal(headers, selectedData, presentR
         rowType: presentRow.rowType,
         id: presentRow.id,
         data: {
-            name: selectedData[0],
+            name: presentRow.data.name,
             attribute: { attributeName: "", attributeValue: "" },
             yearTotalValue: {}
         }
@@ -16,7 +16,7 @@ export function mergeDataWithHeadersForItemTotal(headers, selectedData, presentR
             const columnName = column.label;
             if (category === 'attribute' && presentRow.data.attributes[columnName]) {
                 result.data.attribute.attributeName = columnName;
-                result.data.attribute.attributeValue = presentRow.data.attributes[columnName] ? presentRow.data.attributes[columnName] : '';
+                result.data.attribute.attributeValue = presentRow.itemTotalAttributeValue;
             } else if (category === 'yearvalue') {
                 result.data.yearTotalValue[columnName] = parseInt(selectedData[index] ? selectedData[index] : 0);
             }
@@ -121,7 +121,7 @@ export const handleSubtotalClick = (data) => {
             itemIds: getListOfSimpleRowsForSubTotal(data),
             yearTotalValue: {}
         };
-    
+
         createItemTotal(itemTotal)
             .then(() => {
                 resolve();

@@ -159,6 +159,7 @@ export const fetchDataFromAPI = async (headersVal) => {
             const itemTotalTransformed = {
                 id: itemTotal.id,
                 rowType: itemTotal.rowType,
+                itemTotalAttributeValue:itemTotal.attribute.attributeValue,
                 "changed": false,
                 data: {
                     name: itemTotal.name,
